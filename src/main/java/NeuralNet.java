@@ -1,4 +1,4 @@
-package ubc.cpen502;
+package java;
 
 import java.io.File;
 import java.io.IOException;
@@ -20,7 +20,8 @@ public class NeuralNet implements NeuralNetInterface {
             double argLearningRate,
             double argMomentumTerm,
             double argA,
-            double argB) {
+            double argB,
+            boolean argUseBipolarHiddenNeurons) {
 
     }
 

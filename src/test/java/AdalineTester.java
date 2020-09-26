@@ -1,7 +1,8 @@
-package ubc.cpen502;
+package java;
 
-import org.junit.Assert;
-import org.junit.Test;
+import org.junit.jupiter.api.Assertions;
+import org.junit.jupiter.api.Test;
+
 public class AdalineTester {
     @Test
     public void testOutput(){
@@ -13,7 +14,7 @@ public class AdalineTester {
         double expectedOutput = 1.1;
         double actualOutput = testAdeline.Output(inputVector);
 
-        Assert.assertEquals(expectedOutput, actualOutput, 0.001);
+        Assertions.assertEquals(expectedOutput, actualOutput, 0.001);
     }
 
     @Test
@@ -32,6 +33,6 @@ public class AdalineTester {
 
         double expectedLoss = 4.02;
         double actualLoss = testAdeline.loss(trainingInputVectors, trainingTargetVectors);
-        Assert.assertEquals(expectedLoss, actualLoss, 0.001);
+        Assertions.assertEquals(expectedLoss, actualLoss, 0.001);
     }
 }

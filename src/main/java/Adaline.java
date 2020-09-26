@@ -1,4 +1,4 @@
-package ubc.cpen502;
+package java;
 
 public class Adaline {
     private int numInputs;

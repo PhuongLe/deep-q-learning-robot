@@ -1,4 +1,4 @@
-package ubc.cpen502;
+package java;
 
 import java.io.File;
 import java.io.IOException;

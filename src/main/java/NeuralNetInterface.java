@@ -1,4 +1,4 @@
-package ubc.cpen502;
+package java;
 
 /**
  4 * @date 20 June 2012
