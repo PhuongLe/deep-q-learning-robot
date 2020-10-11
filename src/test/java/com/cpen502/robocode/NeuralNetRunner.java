@@ -1,6 +1,5 @@
-package java;
+package com.cpen502.robocode;
 
-import java.NeuralNet;
 import java.util.Scanner;
 
 public class NeuralNetRunner {

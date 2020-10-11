@@ -1,4 +1,4 @@
-package java;
+package com.cpen502.robocode;
 
 /**
  4 * @date 20 June 2012

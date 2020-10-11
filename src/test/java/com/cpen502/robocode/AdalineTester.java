@@ -1,7 +1,9 @@
-package java;
+package com.cpen502.robocode;
 
+import com.cpen502.robocode.Adaline;
 import org.junit.jupiter.api.Assertions;
 import org.junit.jupiter.api.Test;
+
 
 public class AdalineTester {
     @Test

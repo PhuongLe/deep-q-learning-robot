@@ -1,4 +1,4 @@
-package java;
+package com.cpen502.robocode;
 
 import java.io.File;
 import java.io.IOException;
