@@ -112,7 +112,7 @@ public class NeuralNet implements NeuralNetInterface {
      */
     private double forwardPropagation(double[] currentInputValues, double currentActualOutput) {
         System.out.println("Start ForwardPropagation");
-        for(int j = 1; j < numHiddenNeurons; j++){ //Keep the bias node unchanged
+        for(int j = 0; j < numHiddenNeurons; j++){ //Keep the bias node unchanged
             hiddenS[j] = hiddenBias;
             for(int i = 0; i < numInputs; i++){
                 hiddenS[j] += currentInputValues[i] * hiddenWeight[i][j];

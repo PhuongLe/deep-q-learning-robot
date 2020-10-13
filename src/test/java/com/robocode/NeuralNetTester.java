@@ -86,10 +86,10 @@ public class NeuralNetTester {
 
         double computedError = testNN.train(inputVectors, target);
 
-        double expectedError = 0.27348027772875855;
+        double expectedError = 0.300887955;
 
         //Test computed error on output neuron
-        Assertions.assertEquals(expectedError, computedError);
+        Assertions.assertEquals(expectedError, computedError, 0.0001);
     }
 
     @Test
