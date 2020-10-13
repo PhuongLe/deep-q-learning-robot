@@ -1,6 +1,6 @@
-package com.cpen502.robocode;
+package com.robocode;
 
-import com.cpen502.robocode.Adaline;
+import com.robocode.Adaline;
 import org.junit.jupiter.api.Assertions;
 import org.junit.jupiter.api.Test;
 

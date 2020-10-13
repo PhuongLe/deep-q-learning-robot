@@ -32,7 +32,7 @@
                             <archive>
                                 <manifest>
                                     <mainClass>
-                                        com.cpen502.robocode.NeuralNet
+                                        com.robocode.NeuralNet
                                     </mainClass>
                                 </manifest>
                             </archive>

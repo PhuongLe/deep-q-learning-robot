@@ -1,4 +1,4 @@
-package com.cpen502.robocode;
+package com.robocode;
 
 import java.io.File;
 import java.io.IOException;
@@ -16,7 +16,7 @@ public interface CommonInterface {
      * @param X The input vector. An array of doubles.
      * @return The value returned by th LUT or NN for this input vector
      */
-    public double outputFor(double[] X);
+    //public double outputFor(double[] X);
 
     /**
      * This method will tell the NN or the LUT the output

@@ -1,4 +1,4 @@
-package com.cpen502.robocode;
+package com.robocode;
 
 public class Adaline {
     private int numInputs;
