@@ -285,13 +285,23 @@ public class NeuralNet implements NeuralNetInterface {
     }
 
     @Override
-    public double[] getLastWeightChangeHiddenToOutput() {
+    public double[] getLastWeightChangeToOutput() {
         return deltaOutputWeight;
     }
 
     @Override
-    public double[][] getLastWeightChangeInputToHidden() {
+    public double[][] getLastWeightChangeToHidden() {
         return deltaHiddenWeight;
+    }
+
+    @Override
+    public double[] getLastWeightToOutput() {
+        return outputWeight;
+    }
+
+    @Override
+    public double[][] getLastWeightToHidden() {
+        return hiddenWeight;
     }
 
     @Override

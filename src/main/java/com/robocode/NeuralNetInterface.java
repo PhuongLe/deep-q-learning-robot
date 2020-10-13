@@ -54,7 +54,11 @@ public interface NeuralNetInterface extends CommonInterface {
 
     String printHiddenWeights();
 
-    double[] getLastWeightChangeHiddenToOutput();
+    double[] getLastWeightChangeToOutput();
 
-    double[][] getLastWeightChangeInputToHidden();
+    double[][] getLastWeightChangeToHidden();
+
+    double[] getLastWeightToOutput();
+
+    double[][] getLastWeightToHidden();
 } // End of public interface NeuralNetInterface
