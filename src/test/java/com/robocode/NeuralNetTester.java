@@ -8,10 +8,9 @@ public class NeuralNetTester {
      * This is a very basic test, which looks at the very first weight updates from initial weights
      */
     @Test
-    public void testOneBackwardPropagationWithBinarySigmoidWithWeightsWith000(){
+    public void testOneBackwardPropagationWithBinarySigmoidWithWeightsWithTrainingSet000(){
         NeuralNet testNN = createNeuralNet();
 
-        // Start with a zero set of weights
         double[][] argInputHiddenWeights = {
                 {0.23, 0.34, 0.14, 0.35},
                 {0.52, 0.27, 0.19, 0.25}
@@ -29,7 +28,8 @@ public class NeuralNetTester {
         double [] actualLastWeightChangeToOutput = testNN.getLastWeightChangeToOutput();
         double [][] actualLastWeightChangeToHidden = testNN.getLastWeightChangeToHidden();
 
-        double [] expectedLastWeightChangeToOutput = {-0.015114732, -0.015114732, -0.015114732, -0.015114732};
+        double [] expectedLastWeightChangeToOutput = {-0.017178231, -0.017178231, -0.017178231, -0.017178231};
+        //double [] expectedLastWeightChangeToOutput = {-0.015114732, -0.015114732, -0.015114732, -0.015114732};
         double [][] expectedLastWeightChangeToHidden = {
                 {0.0, 0.0, 0.0, 0.0},
                 {0.0, 0.0, 0.0, 0.0}
@@ -44,10 +44,9 @@ public class NeuralNetTester {
      * This is a very basic test, which looks at the very first weight updates from initial weights
      */
     @Test
-    public void testOneBackwardPropagationWithBinarySigmoidWithWeightsWith101(){
+    public void testOneBackwardPropagationWithBinarySigmoidWithWeightsWithTrainingSet101(){
         NeuralNet testNN = createNeuralNet();
 
-        // Start with a zero set of weights
         double[][] argInputHiddenWeights = {
                 {0.23, 0.34, 0.14, 0.35},
                 {0.52, 0.27, 0.19, 0.25}
@@ -65,10 +64,14 @@ public class NeuralNetTester {
         double [] actualLastWeightToOutput = testNN.getLastWeightToOutput();
         double [][] actualLastWeightToHidden = testNN.getLastWeightToHidden();
 
-        double [] expectedLastWeightToOutput = {0.315504046, 0.566270432, 0.134877002, 0.296340103};
+        double [] expectedLastWeightToOutput = {0.314792222, 0.564953289, 0.134655362, 0.294967576};
         double [][] expectedLastWeightToHidden = {
-                {0.230471988, 0.340810758, 0.140208345, 0.35042249},
+                {0.230470923, 0.340808872, 0.140208003, 0.350420533},
                 {0.52, 0.27, 0.19, 0.25}
+        //double [] expectedLastWeightToOutput = {0.315504046, 0.566270432, 0.134877002, 0.296340103};
+        //double [][] expectedLastWeightToHidden = {
+        //        {0.230471988, 0.340810758, 0.140208345, 0.35042249},
+        //        {0.52, 0.27, 0.19, 0.25}
         };
 
         //Test weights on output neuron
@@ -82,7 +85,7 @@ public class NeuralNetTester {
      * This is a very basic test, which looks at the very first weight updates from initial weights
      */
     @Test
-    public void testOneForwardPropagationWithBinarySigmoidWithZeroWeightsWith000(){
+    public void testOneForwardPropagationWithBinarySigmoidWithZeroWeightsWithTrainingSet000(){
         NeuralNet testNN = createNeuralNet();
 
         // Start with a zero set of weights
@@ -104,7 +107,7 @@ public class NeuralNetTester {
      * This is a very basic test, which looks at the very first weight updates from initial weights
      */
     @Test
-    public void testOneForwardPropagationWithBinarySigmoidWithWeightsWith101(){
+    public void testOneForwardPropagationWithBinarySigmoidWithWeightsWithTrainingSet101(){
         NeuralNet testNN = createNeuralNet();
 
         // Start with a zero set of weights
@@ -132,7 +135,7 @@ public class NeuralNetTester {
      * This is a very basic test, which looks at the very first weight updates from initial weights
      */
     @Test
-    public void testOneForwardPropagationWithBinarySigmoidWithWeightsWith000(){
+    public void testOneForwardPropagationWithBinarySigmoidWithWeightsWithTrainingSet000(){
         NeuralNet testNN = createNeuralNet();
 
         // Start with a zero set of weights

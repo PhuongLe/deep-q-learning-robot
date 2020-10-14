@@ -183,7 +183,7 @@ public class NeuralNet implements NeuralNetInterface {
         //Update weights between hidden layer and output layer
         for(int j = 0; j < numHiddenNeurons; j++){
             deltaOutputWeight[j] = momentumTerm * deltaOutputWeight[j]
-                    + learningRate * deltaOutputS * hiddenS[j];
+                    + learningRate * deltaOutputS * hiddenY[j];
             outputWeight[j] += deltaOutputWeight[j];
         }
 

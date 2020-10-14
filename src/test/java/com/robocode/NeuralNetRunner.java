@@ -38,7 +38,16 @@ public class NeuralNetRunner {
                 0,                      // lower bound of sigmoid on output neuron
                 1,                      // upper bound of sigmoid on output neuron
                 false);
+
+        double[][] argInputHiddenWeights = {
+                {0.479507074, -0.299329076, 0.101025507, -0.072656393},
+                {-0.314402591, -0.177378844, 0.020564257, 0.323327676}
+        };
+        double[] argOutputHiddenWeights = {-0.267034176, -0.263576408, 0.068422966, 0.338359491};
+
+        //nn.initializeWithZeroWeights();
         nn.initializeWeights();
+        //nn.initializeWeights(argInputHiddenWeights, argOutputHiddenWeights);
         nn.initializeTrainingSet();
 
         return nn.trainDataSet(target, showErrorAtEachEpoch, showHiddenWeightsAtEachEpoch);
