@@ -7,10 +7,12 @@ import java.util.Random;
 //This NeuralNet class is design for a NN of 2+ inputs, 1 hidden layer with 4++ neurons and 1 output
 //The number of training set is 4 for each epoch
 public class NeuralNet implements NeuralNetInterface {
+    private static final int DID_NOT_CONVERGE = -1;
+
     static int numTrainingSet = 4;
     static int numInputs;
     static int numHiddenNeurons;
-    static int MAX_EPOCH = 20000;
+    static int MAX_EPOCH = 200000;
     static double argumentA;
     static double argumentB;
     double learningRate;
@@ -84,7 +86,7 @@ public class NeuralNet implements NeuralNetInterface {
         nNet.initializeWeights();
         nNet.initializeTrainingSet();
 
-        nNet.trainDataSet();
+        nNet.trainDataSet(0.05, false, false);
     }
 
     @Override
@@ -94,14 +96,45 @@ public class NeuralNet implements NeuralNetInterface {
         return singleError;
     }
 
-    public void trainDataSet() {
+    public int trainDataSet(double target, boolean showErrorAtEachEpoch, boolean showHiddenWeightsAtEachEpoch) {
+        double error = 100.0;
+        int epochsToReachTarget = 0;
+        boolean targetReached = false;
+
+        String initializedWeights = this.printHiddenWeights();
+
         int epochCnt = 0;
         do {
+            error = 0.0;
             for (int i = 0; i < numTrainingSet; i++) {
+                //System.out.println("Debug: " + inputValues[i][0] + "," + inputValues[i][1] + " " + actualOutput[i]);
                 computedError[i] = this.train(inputValues[i], actualOutput[i]);
+                error += 0.5*Math.pow(computedError[i],2);
+                //System.out.println("single = " + computedError[i]);
             }
+            if (showErrorAtEachEpoch) System.out.println("--+ Error at epoch " + epochCnt + " is " + error);
+            if (showHiddenWeightsAtEachEpoch) System.out.println("--+ Hidden weights at epoch " + epochCnt + " " + this.printHiddenWeights());
+
+            if (!targetReached)
+                if (error < target){
+                    System.out.println("Yo!! Error = " + error + " after " + epochCnt + " epochs");
+                    System.out.println(initializedWeights);
+                    epochsToReachTarget = epochCnt;
+                    targetReached = true;
+                    break;
+                }
+
             epochCnt = epochCnt + 1;
         } while (epochCnt < MAX_EPOCH);
+
+        if (targetReached){
+            System.out.println("--+ Target error reached at " + epochsToReachTarget+" epochs");
+            return epochsToReachTarget;
+        }
+        else {
+            System.out.println("-** Target not reached");
+            return DID_NOT_CONVERGE;
+        }
     }
 
     /**
@@ -111,7 +144,7 @@ public class NeuralNet implements NeuralNetInterface {
      * @return the derived error
      */
     private double forwardPropagation(double[] currentInputValues, double currentActualOutput) {
-        System.out.println("Start ForwardPropagation");
+        //System.out.println("Start ForwardPropagation");
         for(int j = 0; j < numHiddenNeurons; j++){ //Keep the bias node unchanged
             hiddenS[j] = hiddenBias;
             for(int i = 0; i < numInputs; i++){
@@ -127,7 +160,8 @@ public class NeuralNet implements NeuralNetInterface {
         }
         outputY = executeActivation(outputS);
 
-        return Math.pow(currentActualOutput - outputY, 2)/2;
+        return currentActualOutput - outputY;
+        //return Math.pow(currentActualOutput - outputY, 2)/2;
     }
 
     /**
@@ -135,7 +169,7 @@ public class NeuralNet implements NeuralNetInterface {
      * @param singleError The output error calculated by forward propagation
      */
     public void backwardPropagation(double[] currentInputValues, double singleError) {
-        System.out.println("BackwardPropagation");
+        //System.out.println("BackwardPropagation");
 
         //Compute the delta values of output layer
         deltaOutputS = 0;
@@ -166,7 +200,7 @@ public class NeuralNet implements NeuralNetInterface {
         }
 
         //Update weights between input layer and hidden layer
-        for(int j = 1; j < numHiddenNeurons; j++){
+        for(int j = 0; j < numHiddenNeurons; j++){
             for(int i = 0; i < numInputs; i++){
                 deltaHiddenWeight[i][j] = momentumTerm * deltaHiddenWeight[i][j]
                         + learningRate * deltaHiddenS[j] * currentInputValues[i];
@@ -189,16 +223,23 @@ public class NeuralNet implements NeuralNetInterface {
     @Override
     public void initializeWeights() {
         for (int i = 0; i < numInputs; i++) {
-            for (int j = 1; j < numHiddenNeurons; j++) {
-                double r = new Random().nextDouble();
-                hiddenWeight[i][j] = argumentA + (r * (argumentB - argumentA));
+            for (int j = 0; j < numHiddenNeurons; j++) {
+                //double r = (new Random().nextDouble() - 0.5)/2;
+                double r = new Random().nextDouble() - 0.5;
+                //double r = new Random().nextDouble();
+                hiddenWeight[i][j] = r;
+                //hiddenWeight[i][j] = argumentA + (r * (argumentB - argumentA));
                 deltaHiddenWeight[i][j] = 0.0;
             }
         }
 
         for (int i = 0; i < numHiddenNeurons; i++) {
-            double r = new Random().nextDouble();
-            outputWeight[i] = argumentA + (r * (argumentB - argumentA));
+            //double r = (new Random().nextDouble() - 0.5)/2;
+            double r = new Random().nextDouble() - 0.5;
+            //double r = new Random().nextDouble();
+            //outputWeight[i] = argumentA + (r * (argumentB - argumentA));
+            outputWeight[i]  = r;
+
             deltaOutputWeight[i] = 0.0;
         }
     }
@@ -279,9 +320,32 @@ public class NeuralNet implements NeuralNetInterface {
         inputValues[3][1] = 1;
     }
 
+    private void Reset(){
+
+    }
+
     @Override
     public String printHiddenWeights() {
-        return null;
+        StringBuilder str = new StringBuilder();
+        str.append("\n");
+        str.append("WeightToOutput = ");
+        str.append("{");
+        for (int i=0; i<outputWeight.length; i ++ ){
+            str.append(" w" + i + ": "+outputWeight[i] + " ");
+        }
+        str.append("}");
+
+        str.append("\n");
+        str.append("WeightToHidden = ");
+        for (int i=0; i<hiddenWeight.length; i ++ ){
+            str.append("{");
+            for (int j=0; j<hiddenWeight[i].length; j ++ ) {
+                str.append("w" + i + j + ":" + hiddenWeight[i][j] + " ");
+            }
+            str.append("}");
+        }
+        str.append("\n");
+        return str.toString();
     }
 
     @Override

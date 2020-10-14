@@ -8,14 +8,14 @@ public class NeuralNetRunner {
     double [][] xorTrainingSet = {{0,0}, {0,1}, {1,0}, {1,1}};
     double [] xorTargetSet = {0, 1, 1, 0};
 
-    NeuralNet nn = new NeuralNet(
+   /* NeuralNet nn = new NeuralNet(
             2,
             4,
             0.2,             // rho
             0,            // alpha
             0,                      // lower bound of sigmoid on output neuron
             1,                      // upper bound of sigmoid on output neuron
-            false);// use bipolar sigmoid for hidden neurons?
+            false);// use bipolar sigmoid for hidden neurons?*/
 
     /*private double totalError(){
         double sumError = 0;
@@ -28,38 +28,20 @@ public class NeuralNetRunner {
     }*/
 
     private int train(boolean showErrorAtEachEpoch, boolean showHiddenWeightsAtEachEpoch){
-        int numEpochs = 500000;
-        int epochsToReachTarget = 0;
-        boolean targetReached = false;
         double target = 0.05;
-        double error = 100.0;
 
-        nn.initializeWeights(); //Try removing Nguyen-window initialization
+        NeuralNet nn = new NeuralNet(
+                2,
+                4,
+                0.2,             // rho
+                0,            // alpha
+                0,                      // lower bound of sigmoid on output neuron
+                1,                      // upper bound of sigmoid on output neuron
+                false);
+        nn.initializeWeights();
+        nn.initializeTrainingSet();
 
-        for (int i = 0; i <numEpochs; i ++) {
-            error = 0.0;
-            for (int j = 0; j < xorTargetSet.length; j++) {
-                error = error + nn.train(xorTrainingSet[j], xorTargetSet[j]);
-            }
-
-            if (showErrorAtEachEpoch) System.out.println("--+ Error at epoch " + i + " is " + error);
-            if (showHiddenWeightsAtEachEpoch) System.out.println("--+ Hidden weights at epoch " + i + " " + nn.printHiddenWeights());
-            if (!targetReached)
-                if (error < target){
-                    epochsToReachTarget = i;
-                    targetReached = true;
-                    break;
-                }
-        }
-
-        if (targetReached){
-            System.out.println("--+ Target error reached at " + epochsToReachTarget+" epochs");
-            return epochsToReachTarget;
-        }
-        else {
-            System.out.println("-** Target not reached");
-            return DID_NOT_CONVERGE;
-        }
+        return nn.trainDataSet(target, showErrorAtEachEpoch, showHiddenWeightsAtEachEpoch);
     }
 
     public static void main(String []args){
@@ -76,13 +58,17 @@ public class NeuralNetRunner {
         int epochs = 0;
         for (int i=0; i<numTrials; i ++ ){
             NeuralNetRunner myTester = new NeuralNetRunner();
-            epochs = myTester.train(showErrors.equals('y'), showHiddenWeights.equals('y'));
+            epochs = myTester.train(showErrors.equals("y"), showHiddenWeights.equals("y"));
             if (epochs != DID_NOT_CONVERGE){
                 numCoverages++;
                 sum += epochs;
             }
         }
 
-        System.out.println("-- Average convergence rate = " + (int) sum/numCoverages);
+        if (numCoverages != 0){
+            System.out.println("-- Average convergence rate = " + (int) sum/numCoverages);
+        }else {
+            System.out.println("-- Cannot reach the target after " + (int) numTrials + " tries");
+        }
     }
 }

@@ -29,7 +29,7 @@ public class NeuralNetTester {
         double [] actualLastWeightChangeToOutput = testNN.getLastWeightChangeToOutput();
         double [][] actualLastWeightChangeToHidden = testNN.getLastWeightChangeToHidden();
 
-        double [] expectedLastWeightChangeToOutput = {0.005862567, 0.005862567, 0.005862567, 0.005862567};
+        double [] expectedLastWeightChangeToOutput = {-0.015114732, -0.015114732, -0.015114732, -0.015114732};
         double [][] expectedLastWeightChangeToHidden = {
                 {0.0, 0.0, 0.0, 0.0},
                 {0.0, 0.0, 0.0, 0.0}
@@ -65,9 +65,9 @@ public class NeuralNetTester {
         double [] actualLastWeightToOutput = testNN.getLastWeightToOutput();
         double [][] actualLastWeightToHidden = testNN.getLastWeightToHidden();
 
-        double [] expectedLastWeightToOutput = {0.310577894, 0.56065836, 0.130512058, 0.290665675};
+        double [] expectedLastWeightToOutput = {0.315504046, 0.566270432, 0.134877002, 0.296340103};
         double [][] expectedLastWeightToHidden = {
-                {0.230048782, 0.340084281, 0.140021167, 0.35004351},
+                {0.230471988, 0.340810758, 0.140208345, 0.35042249},
                 {0.52, 0.27, 0.19, 0.25}
         };
 
@@ -94,7 +94,7 @@ public class NeuralNetTester {
 
         double computedError = testNN.train(inputVectors, target);
 
-        double expectedError = 0.125;
+        double expectedError = -0.5;
 
         //Test computed error on output neuron
         Assertions.assertEquals(expectedError, computedError);
@@ -122,7 +122,7 @@ public class NeuralNetTester {
 
         double computedError = testNN.train(inputVectors, target);
 
-        double expectedError = 0.022047614;
+        double expectedError = 0.20998864;
 
         //Test computed error on output neuron
         Assertions.assertEquals(expectedError, computedError, 0.0001);
@@ -150,7 +150,7 @@ public class NeuralNetTester {
 
         double computedError = testNN.train(inputVectors, target);
 
-        double expectedError = 0.300887955;
+        double expectedError = -0.775742167;
 
         //Test computed error on output neuron
         Assertions.assertEquals(expectedError, computedError, 0.0001);
