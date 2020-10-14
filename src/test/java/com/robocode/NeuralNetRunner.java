@@ -1,33 +1,22 @@
 package com.robocode;
 
+import java.io.*;
+import java.time.LocalDateTime;
+import java.time.format.DateTimeFormatter;
+import java.util.ArrayList;
+import java.util.List;
 import java.util.Scanner;
 
 public class NeuralNetRunner {
     private static final int DID_NOT_CONVERGE = -1;
+    static int MAX_EPOCH = 20000;
+    static DateTimeFormatter dtf = DateTimeFormatter.ofPattern("yyyy-MM-dd-HH-mm-ss");
 
-    double [][] xorTrainingSet = {{0,0}, {0,1}, {1,0}, {1,1}};
-    double [] xorTargetSet = {0, 1, 1, 0};
+    static int argumentA = 0;
+    static int argumentB = 1;
+    static boolean argUseBipolarHiddenNeurons = false;
 
-   /* NeuralNet nn = new NeuralNet(
-            2,
-            4,
-            0.2,             // rho
-            0,            // alpha
-            0,                      // lower bound of sigmoid on output neuron
-            1,                      // upper bound of sigmoid on output neuron
-            false);// use bipolar sigmoid for hidden neurons?*/
-
-    /*private double totalError(){
-        double sumError = 0;
-        double output = 0;
-        for (int i = 0; i< xorTargetSet.length; i++){
-            output = nn.outputFor(xorTrainingSet[i]);
-            sumError += 0.5 * Math.pow(xorTargetSet[i] - output, 2);
-        }
-        return sumError;
-    }*/
-
-    private int train(boolean showErrorAtEachEpoch, boolean showHiddenWeightsAtEachEpoch){
+    private int train(PrintWriter output, boolean showErrorAtEachEpoch, boolean showHiddenWeightsAtEachEpoch, boolean showErrorAtConverge) {
         double target = 0.05;
 
         NeuralNet nn = new NeuralNet(
@@ -35,49 +24,118 @@ public class NeuralNetRunner {
                 4,
                 0.2,             // rho
                 0,            // alpha
-                0,                      // lower bound of sigmoid on output neuron
-                1,                      // upper bound of sigmoid on output neuron
-                false);
+                argumentA,                      // lower bound of sigmoid on output neuron
+                argumentB,                      // upper bound of sigmoid on output neuron
+                argUseBipolarHiddenNeurons);
 
-        double[][] argInputHiddenWeights = {
-                {0.479507074, -0.299329076, 0.101025507, -0.072656393},
-                {-0.314402591, -0.177378844, 0.020564257, 0.323327676}
-        };
-        double[] argOutputHiddenWeights = {-0.267034176, -0.263576408, 0.068422966, 0.338359491};
-
-        //nn.initializeWithZeroWeights();
         nn.initializeWeights();
-        //nn.initializeWeights(argInputHiddenWeights, argOutputHiddenWeights);
         nn.initializeTrainingSet();
 
-        return nn.trainDataSet(target, showErrorAtEachEpoch, showHiddenWeightsAtEachEpoch);
+        double error;
+        List<Double> errors = new ArrayList<>();
+
+        int epochsToReachTarget = 0;
+        boolean targetReached = false;
+
+        String initializedWeights = nn.printHiddenWeights();
+
+        int epochCnt = 0;
+        do {
+            error = 0.0;
+            for (int i = 0; i < NeuralNet.numTrainingSet; i++) {
+                double computedError = nn.train(nn.inputValues[i], nn.actualOutput[i]);
+                error += 0.5*Math.pow(computedError,2);
+            }
+            errors.add(error);
+            if (showErrorAtEachEpoch) System.out.println("--+ Error at epoch " + epochCnt + " is " + error);
+            if (showHiddenWeightsAtEachEpoch) System.out.println("--+ Hidden weights at epoch " + epochCnt + " " + nn.printHiddenWeights());
+
+            if (error < target){
+                if (showErrorAtConverge) {
+                    System.out.println("Yo!! Error = " + error + " after " + epochCnt + " epochs");
+                    System.out.println(initializedWeights);
+                }
+
+                output.println("Yo!! Error = " + error + " after " + epochCnt + " epochs");
+                String errorString = "";
+                for (Double err : errors) {
+                    errorString += err + ",";
+                }
+                errorString = errorString.substring(0, errorString.length() - 1);
+                output.print(errorString);
+                output.println();
+                output.println();
+                epochsToReachTarget = epochCnt;
+                targetReached = true;
+                break;
+            }
+
+            epochCnt = epochCnt + 1;
+        } while (epochCnt < MAX_EPOCH);
+
+        if (targetReached){
+            System.out.println("--+ Target error reached at " + epochsToReachTarget+" epochs");
+            return epochCnt;
+        }
+        else {
+            System.out.println("-** Target not reached");
+            return DID_NOT_CONVERGE;
+        }
     }
 
-    public static void main(String []args){
+    public static void main(String []args) throws IOException {
         Scanner reader = new Scanner(System.in);
+        System.out.print("Enter the option you want to run 0.binary 1.bipolar: ");
+        int option = reader.nextInt();
         System.out.print("Enter the number of trials you want to run: ");
         int numTrials = reader.nextInt();
         System.out.print("Do you want to see error at each epoch y/n?: ");
         String showErrors = reader.next();
         System.out.print("Do you want to see the hidden weights at each epoch y/n?: ");
         String showHiddenWeights = reader.next();
+        System.out.print("Do you want to see error at converge y/n?: ");
+        String showErrorAtConverge = reader.next();
+
+        String fileNameSuffix = "binary";
+        switch (option){
+            case 0:{
+                argumentA = 0;
+                argumentB = 1;
+                argUseBipolarHiddenNeurons = false;
+                fileNameSuffix = "binary";
+                break;
+            }
+            case 1:{
+                argumentA = -1;
+                argumentB = 1;
+                argUseBipolarHiddenNeurons = true;
+                fileNameSuffix = "bipolar";
+            }
+        }
+
+        LocalDateTime now = LocalDateTime.now();
+        String fileName = "Report\\ConvergeResult_" + fileNameSuffix + dtf.format(now) + ".csv";
+        File file = new File(fileName);
+        FileWriter writer = new FileWriter(file, true);
+        PrintWriter output = new PrintWriter(writer);
 
         int numCoverages = 0;
         int sum = 0;
-        int epochs = 0;
+        int epochs;
         for (int i=0; i<numTrials; i ++ ){
             NeuralNetRunner myTester = new NeuralNetRunner();
-            epochs = myTester.train(showErrors.equals("y"), showHiddenWeights.equals("y"));
+            epochs = myTester.train(output, showErrors.equals("y"), showHiddenWeights.equals("y"), showErrorAtConverge.equals("y"));
             if (epochs != DID_NOT_CONVERGE){
                 numCoverages++;
                 sum += epochs;
             }
         }
+        output.close();
+        writer.close();
 
-        if (numCoverages != 0){
-            System.out.println("-- Average convergence rate = " + (int) sum/numCoverages);
-        }else {
-            System.out.println("-- Cannot reach the target after " + (int) numTrials + " tries");
+        if (numCoverages != 0) System.out.println("-- Average convergence rate = " + sum / numCoverages);
+        else {
+            System.out.println("-- Cannot reach the target after " + numTrials + " tries");
         }
     }
 }

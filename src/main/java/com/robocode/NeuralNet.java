@@ -2,17 +2,16 @@ package com.robocode;
 
 import java.io.File;
 import java.io.IOException;
+import java.util.ArrayList;
+import java.util.List;
 import java.util.Random;
 
 //This NeuralNet class is design for a NN of 2+ inputs, 1 hidden layer with 4++ neurons and 1 output
 //The number of training set is 4 for each epoch
 public class NeuralNet implements NeuralNetInterface {
-    private static final int DID_NOT_CONVERGE = -1;
-
     static int numTrainingSet = 4;
     static int numInputs;
     static int numHiddenNeurons;
-    static int MAX_EPOCH = 200000;
     static double argumentA;
     static double argumentB;
     double learningRate;
@@ -35,7 +34,6 @@ public class NeuralNet implements NeuralNetInterface {
 
     double[][] inputValues;
     double[] actualOutput;
-    double[] computedError;
 
     /**
      * Constructor. (Cannot be declared in an interface, but your implementation will need one)
@@ -78,16 +76,15 @@ public class NeuralNet implements NeuralNetInterface {
 
         inputValues = new double[numTrainingSet][argNumInputs];
         actualOutput = new double[numTrainingSet];
-        computedError = new double[numTrainingSet];
     }
 
-    public static void main(String[] args) {
+  /*  public static void main(String[] args) {
         NeuralNet nNet = new NeuralNet(2, 4, 0.2, 0.0, 0.0, 1.0, false);
         nNet.initializeWeights();
         nNet.initializeTrainingSet();
 
         nNet.trainDataSet(0.05, false, false);
-    }
+    }*/
 
     @Override
     public double train(double[] currentInputValues, double currentActualOutput) {
@@ -96,46 +93,47 @@ public class NeuralNet implements NeuralNetInterface {
         return singleError;
     }
 
-    public int trainDataSet(double target, boolean showErrorAtEachEpoch, boolean showHiddenWeightsAtEachEpoch) {
-        double error = 100.0;
-        int epochsToReachTarget = 0;
-        boolean targetReached = false;
-
-        String initializedWeights = this.printHiddenWeights();
-
-        int epochCnt = 0;
-        do {
-            error = 0.0;
-            for (int i = 0; i < numTrainingSet; i++) {
-                //System.out.println("Debug: " + inputValues[i][0] + "," + inputValues[i][1] + " " + actualOutput[i]);
-                computedError[i] = this.train(inputValues[i], actualOutput[i]);
-                error += 0.5*Math.pow(computedError[i],2);
-                //System.out.println("single = " + computedError[i]);
-            }
-            if (showErrorAtEachEpoch) System.out.println("--+ Error at epoch " + epochCnt + " is " + error);
-            if (showHiddenWeightsAtEachEpoch) System.out.println("--+ Hidden weights at epoch " + epochCnt + " " + this.printHiddenWeights());
-
-            if (!targetReached)
-                if (error < target){
-                    System.out.println("Yo!! Error = " + error + " after " + epochCnt + " epochs");
-                    System.out.println(initializedWeights);
-                    epochsToReachTarget = epochCnt;
-                    targetReached = true;
-                    break;
-                }
-
-            epochCnt = epochCnt + 1;
-        } while (epochCnt < MAX_EPOCH);
-
-        if (targetReached){
-            System.out.println("--+ Target error reached at " + epochsToReachTarget+" epochs");
-            return epochsToReachTarget;
-        }
-        else {
-            System.out.println("-** Target not reached");
-            return DID_NOT_CONVERGE;
-        }
-    }
+//    public int trainDataSet(double target, boolean showErrorAtEachEpoch, boolean showHiddenWeightsAtEachEpoch) {
+//        double error = 100.0;
+//        List<Double> errors = new ArrayList<Double>();
+//
+//        int epochsToReachTarget = 0;
+//        boolean targetReached = false;
+//
+//        String initializedWeights = this.printHiddenWeights();
+//
+//        int epochCnt = 0;
+//        do {
+//            error = 0.0;
+//            for (int i = 0; i < numTrainingSet; i++) {
+//                computedError[i] = this.train(inputValues[i], actualOutput[i]);
+//                error += 0.5*Math.pow(computedError[i],2);
+//            }
+//            errors.add(error);
+//            if (showErrorAtEachEpoch) System.out.println("--+ Error at epoch " + epochCnt + " is " + error);
+//            if (showHiddenWeightsAtEachEpoch) System.out.println("--+ Hidden weights at epoch " + epochCnt + " " + this.printHiddenWeights());
+//
+//            if (!targetReached)
+//                if (error < target){
+//                    System.out.println("Yo!! Error = " + error + " after " + epochCnt + " epochs");
+//                    System.out.println(initializedWeights);
+//                    epochsToReachTarget = epochCnt;
+//                    targetReached = true;
+//                    break;
+//                }
+//
+//            epochCnt = epochCnt + 1;
+//        } while (epochCnt < MAX_EPOCH);
+//
+//        if (targetReached){
+//            System.out.println("--+ Target error reached at " + epochsToReachTarget+" epochs");
+//            return epochsToReachTarget;
+//        }
+//        else {
+//            System.out.println("-** Target not reached");
+//            return DID_NOT_CONVERGE;
+//        }
+//    }
 
     /**
      * This method implements a forward propagation for a single inputs/output.
@@ -318,10 +316,6 @@ public class NeuralNet implements NeuralNetInterface {
 
         inputValues[3][0] = 1;
         inputValues[3][1] = 1;
-    }
-
-    private void Reset(){
-
     }
 
     @Override
