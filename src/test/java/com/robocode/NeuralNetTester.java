@@ -207,10 +207,10 @@ public class NeuralNetTester {
         double [] actualLastWeightToOutput = testNN.getLastWeightToOutput();
         double [][] actualLastWeightToHidden = testNN.getLastWeightToHidden();
 
-        double [] expectedLastWeightToOutput = {0.316955619, 0.561835547, 0.121591758, 0.291468548};
+        double [] expectedLastWeightToOutput = {0.320866679, 0.562867653, 0.116863907, 0.292294294};
         double [][] expectedLastWeightToHidden = {
-                {0.225173132, 0.337885896, 0.141810631, 0.34912681},
-                {0.515173132, 0.267885896, 0.191810631, 0.24912681}
+                {0.248241393, 0.372268731, 0.146616015, 0.366760757},
+                {0.538241393, 0.302268731, 0.196616015, 0.266760757}
         };
 
         //Test weights on output neuron
@@ -272,10 +272,10 @@ public class NeuralNetTester {
         double [] actualLastWeightToOutput = testNN.getLastWeightToOutput();
         double [][] actualLastWeightToHidden = testNN.getLastWeightToHidden();
 
-        double [] expectedLastWeightToOutput = {0.333533206, 0.574092485, 0.147358383, 0.303260327};
+        double [] expectedLastWeightToOutput = {0.331673052, 0.572978561, 0.145986311, 0.302212181};
         double [][] expectedLastWeightToHidden = {
-                {0.22059888, 0.327706052, 0.136397866, 0.343775208},
-                {0.52940112, 0.282293948, 0.193602134, 0.256224792}
+                {0.222481699, 0.325414315, 0.136401484, 0.342252924},
+                {0.527518301, 0.284585685, 0.193598516, 0.257747076}
         };
 
         //Test weights on output neuron
@@ -283,31 +283,6 @@ public class NeuralNetTester {
         for (int i=0;  i < expectedLastWeightToHidden.length; i++) {
             Assertions.assertArrayEquals(expectedLastWeightToHidden[i], actualLastWeightToHidden[i], 0.0001);
         }
-    }
-
-    @Test
-    public void testOneBackwardPropagationWithBipolarSigmoidWithWeightsWithTrainingSetM1M1M11() {
-        NeuralNet testNN = createBipolarNeuralNet();
-
-        double[][] argInputHiddenWeights = {
-                {0.420346613, 0.36364129, -0.127700141, -0.239620821},
-                {0.048133905, -0.261157496, 0.101547675, 0.119521338}
-        };
-
-        double[] argOutputHiddenWeights = {0.346084656, -0.261350465, 0.147112986,0.088036798};
-        testNN.initializeWeights(argInputHiddenWeights, argOutputHiddenWeights);
-        testNN.initializeBias(0.0, 0.0);
-
-        //Now apply a single training set
-        double[] inputVectors = {-1.0, -1.0};
-        double target = -1.0;
-
-        double computedError = testNN.train(inputVectors, target);
-
-        double expectedError = -0.970492609;
-
-        //Test computed error on output neuron
-        Assertions.assertEquals(expectedError, computedError, 0.0001);
     }
 
     @Test
@@ -339,7 +314,7 @@ public class NeuralNetTester {
                 0,            // alpha
                 -1,                      // lower bound of sigmoid on output neuron
                 1,                      // upper bound of sigmoid on output neuron
-                false);
+                true);
     }
 
     private NeuralNet createBinaryNeuralNet(){

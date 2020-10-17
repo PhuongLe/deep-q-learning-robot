@@ -15,8 +15,8 @@ public class NeuralNetRunner {
     static int argumentA = 0;
     static int argumentB = 1;
     static boolean argUseBipolarHiddenNeurons = false;
-    static double hiddenBias = 0;
-    static double outputBias = 0;
+    static double hiddenBias = 1;
+    static double outputBias = 1;
 
     private int train(PrintWriter output, boolean showErrorAtEachEpoch, boolean showHiddenWeightsAtEachEpoch, boolean showErrorAtConverge) {
         double target = 0.05;

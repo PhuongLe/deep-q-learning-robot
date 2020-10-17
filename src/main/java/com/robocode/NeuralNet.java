@@ -76,14 +76,6 @@ public class NeuralNet implements NeuralNetInterface {
         actualOutput = new double[numTrainingSet];
     }
 
-  /*  public static void main(String[] args) {
-        NeuralNet nNet = new NeuralNet(2, 4, 0.2, 0.0, 0.0, 1.0, false);
-        nNet.initializeWeights();
-        nNet.initializeTrainingSet();
-
-        nNet.trainDataSet(0.05, false, false);
-    }*/
-
     @Override
     public double train(double[] currentInputValues, double currentActualOutput) {
         double singleError = forwardPropagation(currentInputValues, currentActualOutput);
@@ -151,7 +143,10 @@ public class NeuralNet implements NeuralNetInterface {
     }
 
     private double computeDerivativeOfActivation(double error, double y) {
-        return error * (argumentB - argumentA) * y * (1-y);
+        if (isBipolar){
+            return error * (1 + y) * (1-y) * 0.5;
+        }
+        return error * y * (1-y);
     }
 
     @Override
