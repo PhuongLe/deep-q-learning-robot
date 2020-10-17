@@ -143,10 +143,11 @@ public class NeuralNet implements NeuralNetInterface {
     }
 
     private double computeDerivativeOfActivation(double error, double y) {
-        if (isBipolar){
-            return error * (1 + y) * (1-y) * 0.5;
-        }
-        return error * y * (1-y);
+        // given that f(x) = (b-a)/(1 + e^-x) + a
+        // => g(x) = 2*f(x) - 1
+        // binary: error * f(x) * (1 - f(x))
+        // bipolar: error * 0.5 (1 - g(x) * (1 + g(x))
+        return error*(1/(argumentB - argumentA))*(y - argumentA) * (argumentB - y);
     }
 
     @Override

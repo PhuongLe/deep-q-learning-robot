@@ -146,7 +146,11 @@ public class NeuralNetRunner {
         output.close();
         writer.close();
 
-        if (numCoverages != 0) System.out.println("-- Average convergence rate = " + sum / numCoverages);
+        if (numCoverages != 0) {
+            System.out.println("-- Average convergence rate = " + sum / numCoverages);
+            System.out.println("-- Number of convergences = " + numCoverages);
+            System.out.println("-- Percentage convergence rate = " + numCoverages*100/numTrials + " %");
+        }
         else {
             System.out.println("-- Cannot reach the target after " + numTrials + " tries");
         }
