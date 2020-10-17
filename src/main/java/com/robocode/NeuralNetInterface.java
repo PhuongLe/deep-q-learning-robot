@@ -10,13 +10,6 @@ import com.robocode.CommonInterface;
 public interface NeuralNetInterface extends CommonInterface {
     double bias = 1.0; // The input for each neurons bias weight
 
-     /**
-     * Return a bipolar sigmoid of the input X
-     * @param x The input
-     * @return f(x) = 2 / (1+e(-x)) - 1
-     */
-     double sigmoid(double x);
-
     /**
      * This method implements a general sigmoid with asymptotes bounded by (a,b)
      * @param x The input

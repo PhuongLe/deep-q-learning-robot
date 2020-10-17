@@ -15,6 +15,8 @@ public class NeuralNetRunner {
     static int argumentA = 0;
     static int argumentB = 1;
     static boolean argUseBipolarHiddenNeurons = false;
+    static double hiddenBias = 0;
+    static double outputBias = 0;
 
     private int train(PrintWriter output, boolean showErrorAtEachEpoch, boolean showHiddenWeightsAtEachEpoch, boolean showErrorAtConverge) {
         double target = 0.05;
@@ -30,6 +32,7 @@ public class NeuralNetRunner {
 
         nn.initializeWeights();
         nn.initializeTrainingSet();
+        nn.initializeBias(hiddenBias, outputBias);
 
         double error;
         List<Double> errors = new ArrayList<>();
@@ -55,16 +58,8 @@ public class NeuralNetRunner {
                     System.out.println("Yo!! Error = " + error + " after " + epochCnt + " epochs");
                     System.out.println(initializedWeights);
                 }
-
-                output.println("Yo!! Error = " + error + " after " + epochCnt + " epochs");
-                String errorString = "";
-                for (Double err : errors) {
-                    errorString += err + ",";
-                }
-                errorString = errorString.substring(0, errorString.length() - 1);
-                output.print(errorString);
-                output.println();
-                output.println();
+                //output.println("Yo!! Error = " + error + " after " + epochCnt + " epochs");
+                saveToFile(output, errors);
                 epochsToReachTarget = epochCnt;
                 targetReached = true;
                 break;
@@ -81,6 +76,24 @@ public class NeuralNetRunner {
             System.out.println("-** Target not reached");
             return DID_NOT_CONVERGE;
         }
+    }
+
+    private void saveToFile(PrintWriter output, List<Double> errors) {
+        int epochCnt = 0;
+        String epochIndexes = "";
+        String errorString = "";
+        for (Double err : errors) {
+            epochIndexes += epochCnt + ",";
+            errorString += err + ",";
+            epochCnt ++;
+        }
+        epochIndexes = epochIndexes.substring(0, epochIndexes.length() - 1);
+        errorString = errorString.substring(0, errorString.length() - 1);
+        output.print(epochIndexes);
+        output.println();
+        output.print(errorString);
+        output.println();
+        output.println();
     }
 
     public static void main(String []args) throws IOException {

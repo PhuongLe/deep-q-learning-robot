@@ -2,8 +2,6 @@ package com.robocode;
 
 import java.io.File;
 import java.io.IOException;
-import java.util.ArrayList;
-import java.util.List;
 import java.util.Random;
 
 //This NeuralNet class is design for a NN of 2+ inputs, 1 hidden layer with 4++ neurons and 1 output
@@ -93,48 +91,6 @@ public class NeuralNet implements NeuralNetInterface {
         return singleError;
     }
 
-//    public int trainDataSet(double target, boolean showErrorAtEachEpoch, boolean showHiddenWeightsAtEachEpoch) {
-//        double error = 100.0;
-//        List<Double> errors = new ArrayList<Double>();
-//
-//        int epochsToReachTarget = 0;
-//        boolean targetReached = false;
-//
-//        String initializedWeights = this.printHiddenWeights();
-//
-//        int epochCnt = 0;
-//        do {
-//            error = 0.0;
-//            for (int i = 0; i < numTrainingSet; i++) {
-//                computedError[i] = this.train(inputValues[i], actualOutput[i]);
-//                error += 0.5*Math.pow(computedError[i],2);
-//            }
-//            errors.add(error);
-//            if (showErrorAtEachEpoch) System.out.println("--+ Error at epoch " + epochCnt + " is " + error);
-//            if (showHiddenWeightsAtEachEpoch) System.out.println("--+ Hidden weights at epoch " + epochCnt + " " + this.printHiddenWeights());
-//
-//            if (!targetReached)
-//                if (error < target){
-//                    System.out.println("Yo!! Error = " + error + " after " + epochCnt + " epochs");
-//                    System.out.println(initializedWeights);
-//                    epochsToReachTarget = epochCnt;
-//                    targetReached = true;
-//                    break;
-//                }
-//
-//            epochCnt = epochCnt + 1;
-//        } while (epochCnt < MAX_EPOCH);
-//
-//        if (targetReached){
-//            System.out.println("--+ Target error reached at " + epochsToReachTarget+" epochs");
-//            return epochsToReachTarget;
-//        }
-//        else {
-//            System.out.println("-** Target not reached");
-//            return DID_NOT_CONVERGE;
-//        }
-//    }
-
     /**
      * This method implements a forward propagation for a single inputs/output.
      * @param currentInputValues The inputs
@@ -148,7 +104,7 @@ public class NeuralNet implements NeuralNetInterface {
             for(int i = 0; i < numInputs; i++){
                 hiddenS[j] += currentInputValues[i] * hiddenWeight[i][j];
             }
-            hiddenY[j] = executeActivation(hiddenS[j]);
+            hiddenY[j] = computeActivation(hiddenS[j]);
         }
 
         //assume that we only have one output for each inputs set
@@ -156,10 +112,9 @@ public class NeuralNet implements NeuralNetInterface {
         for(int j = 0; j < numHiddenNeurons; j++){
             outputS += hiddenY[j] * outputWeight[j];
         }
-        outputY = executeActivation(outputS);
+        outputY = computeActivation(outputS);
 
         return currentActualOutput - outputY;
-        //return Math.pow(currentActualOutput - outputY, 2)/2;
     }
 
     /**
@@ -170,13 +125,7 @@ public class NeuralNet implements NeuralNetInterface {
         //System.out.println("BackwardPropagation");
 
         //Compute the delta values of output layer
-        deltaOutputS = 0;
-        if(!isBipolar){ //binary presentation
-            deltaOutputS = singleError * outputY * (1 - outputY);
-        }
-        else{ //bipolar presentation
-            deltaOutputS = singleError * (outputY + 1) * 0.5 * (1 - outputY);
-        }
+        deltaOutputS = computeDerivativeOfActivation(singleError, outputY);
 
         //Update weights between hidden layer and output layer
         for(int j = 0; j < numHiddenNeurons; j++){
@@ -187,14 +136,8 @@ public class NeuralNet implements NeuralNetInterface {
 
         //Compute the delta values of hidden layer
         for(int j = 0; j < numHiddenNeurons; j++){
-            deltaHiddenS[j] = deltaOutputS * outputWeight[j];
-
-            if(!isBipolar){
-                deltaHiddenS[j] = deltaHiddenS[j] * hiddenY[j] * (1 - hiddenY[j]);
-            }
-            else{
-                deltaHiddenS[j] = deltaHiddenS[j] * (hiddenY[j] + 1) * 0.5 * (1 - hiddenY[j]);
-            }
+            double errorAtj = deltaOutputS * outputWeight[j];
+            deltaHiddenS[j] = computeDerivativeOfActivation(errorAtj, hiddenY[j]);
         }
 
         //Update weights between input layer and hidden layer
@@ -207,10 +150,8 @@ public class NeuralNet implements NeuralNetInterface {
         }
     }
 
-    @Override
-    public double sigmoid(double x) {
-        //This sigmoid is bipolar function
-        return 2 / (1 + Math.pow(Math.E, -x)) - 1;
+    private double computeDerivativeOfActivation(double error, double y) {
+        return error * (argumentB - argumentA) * y * (1-y);
     }
 
     @Override
@@ -377,7 +318,7 @@ public class NeuralNet implements NeuralNetInterface {
      * @param x The input
      * @return f(x) = result from selected activation function
      */
-    public double executeActivation(double x){
+    public double computeActivation(double x){
         return customSigmoid(x);
     }
 
