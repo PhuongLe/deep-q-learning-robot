@@ -15,8 +15,10 @@ public class NeuralNetRunner {
     static int argumentA = 0;
     static int argumentB = 1;
     static boolean argUseBipolarHiddenNeurons = false;
-    static double hiddenBias = 1;
-    static double outputBias = 1;
+    static double hiddenBias = 0.0;
+    static double outputBias = 0.0;
+
+    static double argMomentum = 0.9;
 
     private int train(PrintWriter output, boolean showErrorAtEachEpoch, boolean showHiddenWeightsAtEachEpoch, boolean showErrorAtConverge) {
         double target = 0.05;
@@ -24,8 +26,8 @@ public class NeuralNetRunner {
         NeuralNet nn = new NeuralNet(
                 2,
                 4,
-                0.2,             // rho
-                0,            // alpha
+                0.02,                // rho
+                argMomentum,                    // alpha
                 argumentA,                      // lower bound of sigmoid on output neuron
                 argumentB,                      // upper bound of sigmoid on output neuron
                 argUseBipolarHiddenNeurons);
@@ -100,15 +102,19 @@ public class NeuralNetRunner {
         Scanner reader = new Scanner(System.in);
         System.out.print("Enter the option you want to run 0.binary 1.bipolar: ");
         int option = reader.nextInt();
-        System.out.print("Enter the number of trials you want to run: ");
+        /*System.out.print("Enter the number of trials you want to run: ");
         int numTrials = reader.nextInt();
         System.out.print("Do you want to see error at each epoch y/n?: ");
         String showErrors = reader.next();
         System.out.print("Do you want to see the hidden weights at each epoch y/n?: ");
         String showHiddenWeights = reader.next();
         System.out.print("Do you want to see error at converge y/n?: ");
-        String showErrorAtConverge = reader.next();
+        String showErrorAtConverge = reader.next();*/
 
+        int numTrials = 100;
+        String showErrors = "n";
+        String showHiddenWeights = "n";
+        String showErrorAtConverge = "n";
         String fileNameSuffix = "binary";
         switch (option){
             case 0:{
@@ -148,7 +154,7 @@ public class NeuralNetRunner {
 
         if (numCoverages != 0) {
             System.out.println("-- Average convergence rate = " + sum / numCoverages);
-            System.out.println("-- Number of convergences = " + numCoverages);
+            //System.out.println("-- Number of convergences = " + numCoverages);
             System.out.println("-- Percentage convergence rate = " + numCoverages*100/numTrials + " %");
         }
         else {

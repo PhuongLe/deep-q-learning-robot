@@ -35,6 +35,12 @@ public interface NeuralNetInterface extends CommonInterface {
      */
     void initializeWeights(double[][] argInputHiddenWeight, double[] argOutputHiddenWeight);
 
+    /**
+     * Initialize the weights and delta weights with predefined values.
+     * We also initialise the last weight change arrays. This is to implement the alpha term.
+     */
+    void initializeWeights(double[][] argHiddenWeight, double[] argOutputWeight, double[][] argDeltaHiddenWeight, double[] argDeltaOutputWeight);
+
      /**
      * Initialize the weights to 0.
      */

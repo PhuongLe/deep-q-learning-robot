@@ -180,8 +180,8 @@ public class NeuralNet implements NeuralNetInterface {
     }
 
     @Override
-    public void initializeWeights(double[][] argInputHiddenWeight, double[] argOutputHiddenWeight){
-        hiddenWeight = argInputHiddenWeight;
+    public void initializeWeights(double[][] argHiddenWeight, double[] argOutputWeight){
+        hiddenWeight = argHiddenWeight;
 
         for (int i = 0; i < numInputs; i++) {
             for (int j = 1; j < numHiddenNeurons; j++) {
@@ -189,10 +189,18 @@ public class NeuralNet implements NeuralNetInterface {
             }
         }
 
-        outputWeight = argOutputHiddenWeight;
+        outputWeight = argOutputWeight;
         for (int i = 0; i < numHiddenNeurons; i++) {
             deltaOutputWeight[i] = 0.0;
         }
+    }
+
+    @Override
+    public void initializeWeights(double[][] argHiddenWeight, double[] argOutputWeight, double[][] argDeltaHiddenWeight, double[] argDeltaOutputWeight){
+        hiddenWeight = argHiddenWeight;
+        deltaHiddenWeight = argDeltaHiddenWeight;
+        outputWeight = argOutputWeight;
+        deltaOutputWeight = argDeltaOutputWeight;
     }
 
     @Override
