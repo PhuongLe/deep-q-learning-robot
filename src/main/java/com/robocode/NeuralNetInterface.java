@@ -60,4 +60,11 @@ public interface NeuralNetInterface extends CommonInterface {
     double[] getLastWeightToOutput();
 
     double[][] getLastWeightToHidden();
+
+    /**
+     * This method is to enable batch update weights for each propagation round only
+     */
+    void enableBatchUpdateOption();
+
+    void setActivation(Activation argActivation);
 } // End of public interface NeuralNetInterface

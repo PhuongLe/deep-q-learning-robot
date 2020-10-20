@@ -33,6 +33,10 @@ public class NeuralNet implements NeuralNetInterface {
     double[][] inputValues;
     double[] actualOutput;
 
+    boolean onlineUpdatePerRound = true;
+
+    Activation activationFunction;
+
     /**
      * Constructor. (Cannot be declared in an interface, but your implementation will need one)
      *
@@ -74,6 +78,8 @@ public class NeuralNet implements NeuralNetInterface {
 
         inputValues = new double[numTrainingSet][argNumInputs];
         actualOutput = new double[numTrainingSet];
+
+        this.activationFunction = new SigmoidActivation(this.argumentA, this.argumentB);
     }
 
     @Override
@@ -114,27 +120,52 @@ public class NeuralNet implements NeuralNetInterface {
      * @param singleError The output error calculated by forward propagation
      */
     public void backwardPropagation(double[] currentInputValues, double singleError) {
-        //System.out.println("BackwardPropagation");
+        if (onlineUpdatePerRound) {
+            //Compute the delta values of output layer
+            deltaOutputS = computeDerivativeOfActivation(singleError, outputY);
 
+            //Update weights between hidden layer and output layer
+            for (int j = 0; j < numHiddenNeurons; j++) {
+                deltaOutputWeight[j] = momentumTerm * deltaOutputWeight[j]
+                        + learningRate * deltaOutputS * hiddenY[j];
+                outputWeight[j] += deltaOutputWeight[j];
+            }
+
+            //Compute the delta values of hidden layer
+            for (int j = 0; j < numHiddenNeurons; j++) {
+                double errorAtj = deltaOutputS * outputWeight[j];
+                deltaHiddenS[j] = computeDerivativeOfActivation(errorAtj, hiddenY[j]);
+            }
+
+            //Update weights between input layer and hidden layer
+            for (int j = 0; j < numHiddenNeurons; j++) {
+                for (int i = 0; i < numInputs; i++) {
+                    deltaHiddenWeight[i][j] = momentumTerm * deltaHiddenWeight[i][j]
+                            + learningRate * deltaHiddenS[j] * currentInputValues[i];
+                    hiddenWeight[i][j] += deltaHiddenWeight[i][j];
+                }
+            }
+            return;
+        }
         //Compute the delta values of output layer
         deltaOutputS = computeDerivativeOfActivation(singleError, outputY);
 
+        //Compute the delta values of hidden layer
+        for (int j = 0; j < numHiddenNeurons; j++) {
+            double errorAtj = deltaOutputS * outputWeight[j];
+            deltaHiddenS[j] = computeDerivativeOfActivation(errorAtj, hiddenY[j]);
+        }
+
         //Update weights between hidden layer and output layer
-        for(int j = 0; j < numHiddenNeurons; j++){
+        for (int j = 0; j < numHiddenNeurons; j++) {
             deltaOutputWeight[j] = momentumTerm * deltaOutputWeight[j]
                     + learningRate * deltaOutputS * hiddenY[j];
             outputWeight[j] += deltaOutputWeight[j];
         }
 
-        //Compute the delta values of hidden layer
-        for(int j = 0; j < numHiddenNeurons; j++){
-            double errorAtj = deltaOutputS * outputWeight[j];
-            deltaHiddenS[j] = computeDerivativeOfActivation(errorAtj, hiddenY[j]);
-        }
-
         //Update weights between input layer and hidden layer
-        for(int j = 0; j < numHiddenNeurons; j++){
-            for(int i = 0; i < numInputs; i++){
+        for (int j = 0; j < numHiddenNeurons; j++) {
+            for (int i = 0; i < numInputs; i++) {
                 deltaHiddenWeight[i][j] = momentumTerm * deltaHiddenWeight[i][j]
                         + learningRate * deltaHiddenS[j] * currentInputValues[i];
                 hiddenWeight[i][j] += deltaHiddenWeight[i][j];
@@ -143,40 +174,35 @@ public class NeuralNet implements NeuralNetInterface {
     }
 
     private double computeDerivativeOfActivation(double error, double y) {
-        // given that f(x) = (b-a)/(1 + e^-x) + a
-        // => g(x) = 2*f(x) - 1
-        // binary: error * f(x) * (1 - f(x))
-        // bipolar: error * 0.5 (1 - g(x) * (1 + g(x))
-        return error*(1/(argumentB - argumentA))*(y - argumentA) * (argumentB - y);
+        return error*activationFunction.ComputeDerivative(y);
     }
 
     @Override
     public double customSigmoid(double x) {
-        return (argumentB - argumentA) / (1 + Math.pow(Math.E, -x)) + argumentA;
+        return activationFunction.ComputeY(x);
     }
 
     @Override
     public void initializeWeights() {
         for (int i = 0; i < numInputs; i++) {
             for (int j = 0; j < numHiddenNeurons; j++) {
-                //double r = (new Random().nextDouble() - 0.5)/2;
-                double r = new Random().nextDouble() - 0.5;
-                //double r = new Random().nextDouble();
-                hiddenWeight[i][j] = r;
-                //hiddenWeight[i][j] = argumentA + (r * (argumentB - argumentA));
+                hiddenWeight[i][j] = generateRandomWeight();
                 deltaHiddenWeight[i][j] = 0.0;
             }
         }
 
         for (int i = 0; i < numHiddenNeurons; i++) {
-            //double r = (new Random().nextDouble() - 0.5)/2;
-            double r = new Random().nextDouble() - 0.5;
-            //double r = new Random().nextDouble();
-            //outputWeight[i] = argumentA + (r * (argumentB - argumentA));
-            outputWeight[i]  = r;
+            outputWeight[i]  = generateRandomWeight();
 
             deltaOutputWeight[i] = 0.0;
         }
+
+        this.hiddenBias = generateRandomWeight();
+        this.outputBias = generateRandomWeight();
+    }
+
+    private double generateRandomWeight(){
+        return new Random().nextDouble() - 0.5;
     }
 
     @Override
@@ -324,6 +350,19 @@ public class NeuralNet implements NeuralNetInterface {
      */
     public double computeActivation(double x){
         return customSigmoid(x);
+    }
+
+    /**
+     * This method is to enable batch update weights for each propagation round only
+     */
+    @Override
+    public void enableBatchUpdateOption(){
+        this.onlineUpdatePerRound = false;
+    }
+
+    @Override
+    public void setActivation(Activation argActivation) {
+        this.activationFunction = argActivation;
     }
 
 }
