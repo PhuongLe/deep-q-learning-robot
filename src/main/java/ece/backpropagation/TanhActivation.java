@@ -1,6 +1,8 @@
-package com.robocode;
+package ece.backpropagation;
 
-public class TanhActivation implements Activation{
+import ece.common.Activation;
+
+public class TanhActivation implements Activation {
     @Override
     public double ComputeY(double x) {
         return Math.tanh(x);

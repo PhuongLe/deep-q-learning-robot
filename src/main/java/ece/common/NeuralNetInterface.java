@@ -1,6 +1,6 @@
-package com.robocode;
+package ece.common;
 
-import com.robocode.CommonInterface;
+import ece.common.CommonInterface;
 
 /**
  4 * @date 20 June 2012

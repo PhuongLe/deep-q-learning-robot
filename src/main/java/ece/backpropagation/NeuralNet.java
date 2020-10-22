@@ -1,4 +1,7 @@
-package com.robocode;
+package ece.backpropagation;
+
+import ece.common.Activation;
+import ece.common.NeuralNetInterface;
 
 import java.io.File;
 import java.io.IOException;

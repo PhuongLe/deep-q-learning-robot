@@ -1,4 +1,4 @@
-package com.robocode;
+package ece.backpropagation;
 
 import org.junit.jupiter.api.Assertions;
 import org.junit.jupiter.api.Test;

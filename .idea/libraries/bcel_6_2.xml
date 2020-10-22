@@ -1,0 +1,20 @@
+<component name="libraryTable">
+  <library name="bcel-6.2">
+    <CLASSES>
+      <root url="jar://C:/robocode/libs/bcel-6.2.jar!/" />
+      <root url="jar://C:/robocode/libs/codesize-1.2.jar!/" />
+      <root url="jar://C:/robocode/libs/picocontainer-2.14.2.jar!/" />
+      <root url="jar://C:/robocode/libs/robocode.battle-1.9.3.9.jar!/" />
+      <root url="jar://C:/robocode/libs/robocode.core-1.9.3.9.jar!/" />
+      <root url="jar://C:/robocode/libs/robocode.host-1.9.3.9.jar!/" />
+      <root url="jar://C:/robocode/libs/robocode.jar!/" />
+      <root url="jar://C:/robocode/libs/robocode.repository-1.9.3.9.jar!/" />
+      <root url="jar://C:/robocode/libs/robocode.sound-1.9.3.9.jar!/" />
+      <root url="jar://C:/robocode/libs/robocode.ui-1.9.3.9.jar!/" />
+      <root url="jar://C:/robocode/libs/robocode.ui.editor-1.9.3.9.jar!/" />
+      <root url="jar://C:/robocode/libs/roborumble.jar!/" />
+    </CLASSES>
+    <JAVADOC />
+    <SOURCES />
+  </library>
+</component>

@@ -1,6 +1,8 @@
-package com.robocode;
+package ece.backpropagation;
 
-public class SigmoidActivation implements Activation{
+import ece.common.Activation;
+
+public class SigmoidActivation implements Activation {
     private double argumentA;
     private double argumentB;
     public SigmoidActivation(double argA, double argB){

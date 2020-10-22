@@ -1,4 +1,4 @@
-package com.robocode;
+package ece.common;
 
 public interface Activation {
     double ComputeY(double x);

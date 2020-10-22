@@ -1,6 +1,8 @@
-package com.robocode;
+package ece.backpropagation;
 
-public class ReLuActivation implements Activation{
+import ece.common.Activation;
+
+public class ReLuActivation implements Activation {
     @Override
     public double ComputeY(double x) {
         return x > 0 ? x : 0;
