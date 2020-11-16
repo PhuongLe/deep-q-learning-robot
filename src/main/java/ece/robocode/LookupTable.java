@@ -3,7 +3,7 @@ package ece.robocode;
 import java.io.File;
 import java.io.IOException;
 
-public class LookupTable implements LookupTableInterface {
+public class LookupTable implements LUTInterface {
 
     @Override
     public double train(double[] X, double argValue) {
