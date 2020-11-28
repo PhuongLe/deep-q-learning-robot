@@ -13,21 +13,21 @@ import java.io.IOException;
  */
 public interface CommonInterface {
     /**
-     * @param X The input vector. An array of doubles.
+     * @param x The input vector. An array of doubles.
      * @return The value returned by th LUT or NN for this input vector
      */
-    public double outputFor(double[] X);
+    public double outputFor(double[] x);
 
     /**
      * This method will tell the NN or the LUT the output
      * value that should be mapped to the given input vector. I.e.
      * the desired correct output value for an input.
      *
-     * @param X        The input vector
-     * @param argValue The new value to learn
+     * @param x        The input vector
+     * @param target The new value to learn
      * @return The error in the output for that input vector
      */
-    public double train(double[] X, double argValue);
+    public double train(double[] x, double target);
 
     /**
      * A method to write either a LUT or weights of an neural net to a file.

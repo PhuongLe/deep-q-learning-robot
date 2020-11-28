@@ -2,9 +2,11 @@ package ece.backpropagation;
 
 import ece.common.Activation;
 import ece.common.NeuralNetInterface;
+import robocode.RobocodeFileOutputStream;
 
 import java.io.File;
 import java.io.IOException;
+import java.io.PrintStream;
 import java.util.Random;
 
 //This NeuralNet class is design for a NN of 2+ inputs, 1 hidden layer with 4++ neurons and 1 output
@@ -83,6 +85,11 @@ public class NeuralNet implements NeuralNetInterface {
         actualOutput = new double[numTrainingSet];
 
         this.activationFunction = new SigmoidActivation(this.argumentA, this.argumentB);
+    }
+
+    @Override
+    public double outputFor(double[] X) {
+        return 0;
     }
 
     @Override
@@ -338,7 +345,34 @@ public class NeuralNet implements NeuralNetInterface {
 
     @Override
     public void save(File argFile) {
+        PrintStream saveFile = null;
 
+        try{
+            saveFile = new PrintStream(new RobocodeFileOutputStream(argFile));
+        } catch (IOException e) {
+            System.out.println("*** Could not create output stream for NN save file");
+        }
+
+        saveFile.println(numInputs);
+        saveFile.println(numHiddenNeurons);
+
+        //First save the weights from the input to hidden neurons (one line per weight)
+        for (int i=0; i<numHiddenNeurons; i++){
+            for (int j=0; j < numInputs;j++){
+                saveFile.println(hiddenWeight[i][j]);
+            }
+            //saveFile.println(hiddenWeight[i][numInputs]);//todo save bias weight for this hidden neuron too
+            saveFile.println(hiddenBias);
+        }
+
+        //Now save the weights from hidden to the output neuron
+        for (int i=0; i<numHiddenNeurons; i++){
+            saveFile.println(outputWeight[i]);
+        }
+        saveFile.println(outputBias); //save bias weight for output neuron too
+        //saveFile.println(weightHiddenToOutput[numHidden]
+
+        saveFile.close();
     }
 
     @Override

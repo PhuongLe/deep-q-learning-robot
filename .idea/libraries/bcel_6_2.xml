@@ -14,7 +14,9 @@
       <root url="jar://C:/robocode/libs/robocode.ui.editor-1.9.3.9.jar!/" />
       <root url="jar://C:/robocode/libs/roborumble.jar!/" />
     </CLASSES>
-    <JAVADOC />
+    <JAVADOC>
+      <root url="file://C:/robocode/javadoc" />
+    </JAVADOC>
     <SOURCES />
   </library>
 </component>
