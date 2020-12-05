@@ -523,7 +523,7 @@ public class NeuralNetED implements NeuralNetInterfaceSS{
             saveFile = new PrintStream(new RobocodeFileOutputStream(argFile));
         }
         catch(IOException e){
-            System.out.println("--- Coult not create output stream for NN save file.");
+            System.out.println("--- Couldt not create output stream for NN save file.");
         }
 
         saveFile.println(numInputs);
@@ -611,7 +611,6 @@ public class NeuralNetED implements NeuralNetInterfaceSS{
         xorPatterns = pl.stateActionPatterns;
         xorExpectedOutput = pl.stateActionPatternsExpectedOutput;
         numPairs = xorExpectedOutput.length;
-
     }
 
 }
