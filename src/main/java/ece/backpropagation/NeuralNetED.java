@@ -24,10 +24,16 @@ public class NeuralNetED implements NeuralNetInterfaceSS{
     double[][] v_inputToHidden;
     double[][] w_hiddenToOutput;
 
+
 //    double[][] xorPatterns = {{0,0}, {0,1}, {1,0}, {1,1}};
 //    double[] xorExpectedOutput = {0,1,1,0};
-    double[][] xorPatterns = {{-1,-1}, {-1,1}, {1,-1}, {1,1}};
-    double[] xorExpectedOutput = {-1,1,1,-1};
+//    double[][] xorPatterns = {{-1,-1}, {-1,1}, {1,-1}, {1,1}};
+//    double[] xorExpectedOutput = {-1,1,1,-1};
+//    int numPairs = xorExpectedOutput.length;
+    double[][] xorPatterns;
+    double[] xorExpectedOutput ;
+    int numPairs ;
+
 
     double[] zDotProduct;
     double[] zActivation;
@@ -46,8 +52,9 @@ public class NeuralNetED implements NeuralNetInterfaceSS{
                        float argLearningRate,
                        float argMomentumTerm,
                        double argA,
-                       double argB)
-    {
+                       double argB) throws IOException {
+
+        loadProcessedLuT();
 
         this.numOutput = argNumOutput;
         this.numInputs = argNumInputs;
@@ -63,14 +70,14 @@ public class NeuralNetED implements NeuralNetInterfaceSS{
 
     private void NN_ErrorBackpropagation(){
 
-        int num_attempts = 100;
-        int max_iteration = 100;
+        int num_attempts = 10;
+        int max_iteration = 1000;
         int[] maxIterationEachAttempt = new int[num_attempts];
 
         double[][] track_mse_and_max_attempt = new double[num_attempts][max_iteration+1];
         for(int attemptInd = 0; attemptInd < num_attempts; attemptInd++){
 
-            double[] meanSquaredError = new double[max_iteration];
+            double[] rootMeanSquaredError = new double[max_iteration];
             int max_used_iteration = 0;
 
             // Initialize the weights
@@ -102,15 +109,15 @@ public class NeuralNetED implements NeuralNetInterfaceSS{
 //                System.out.println("--- Iteration num "+xor_index+" is complete ---");
 
                     // Call train() to return the MSE for each input vector
-                    meanSquaredError[iteration_index] += train(xor_input, correct_y);
+                    rootMeanSquaredError[iteration_index] += train(xor_input, correct_y);
 
                 }
 
-                meanSquaredError[iteration_index] = 0.5*meanSquaredError[iteration_index];
+                rootMeanSquaredError[iteration_index] = Math.sqrt( (1.0/numPairs) * rootMeanSquaredError[iteration_index] );
 
                 max_used_iteration = iteration_index;
-                if(meanSquaredError[iteration_index] < this.error_threshold){
-                    System.out.println("Threshold reached. Breaking the loop. Iteration count: "+iteration_index+". MSE:" + meanSquaredError[iteration_index] + " Iteration index:"+iteration_index);
+                if(rootMeanSquaredError[iteration_index] < this.error_threshold){
+                    System.out.println("Threshold reached. Breaking the loop. Iteration count: "+iteration_index+". MSE:" + rootMeanSquaredError[iteration_index] + " Iteration index:"+iteration_index);
                     break;
                 }
 
@@ -119,8 +126,8 @@ public class NeuralNetED implements NeuralNetInterfaceSS{
             maxIterationEachAttempt[attemptInd] = max_used_iteration;
 
             double[] max_used_tr_arr = {max_used_iteration};
-            double[] meanSquaredErrorFinal = concatenate(max_used_tr_arr, meanSquaredError);
-            track_mse_and_max_attempt[attemptInd] = meanSquaredErrorFinal;
+            double[] rootMeanSquaredErrorFinal = concatenate(max_used_tr_arr, rootMeanSquaredError);
+            track_mse_and_max_attempt[attemptInd] = rootMeanSquaredErrorFinal;
       }
 
         // Writing to file
@@ -158,7 +165,6 @@ public class NeuralNetED implements NeuralNetInterfaceSS{
      * @param x The input vector. An array of doubles.
      * @return The value returned by the LUT or NN for this input vector
      */
-    // TODO: use this method to compute output of the forward propagation
     public double outputFor(double [] x){
         // Concatenate input array with the bias term
         double[] xorInputWithBias = concatenate(x, this.bias_arr);
@@ -270,9 +276,7 @@ public class NeuralNetED implements NeuralNetInterfaceSS{
      * @param argValue The new value to learn
      * @return The error in the output for that input vector
      */
-    // TODO: use this method in the implementation of the NN
     public double train(double [] x, double argValue){
-        int numOutputs = 1;
 
         // Output of the forward propagation
         double yOutput = outputFor(x);
@@ -358,53 +362,44 @@ public class NeuralNetED implements NeuralNetInterfaceSS{
         double maxWeight = 0.5f;
         Random rand = new Random();
 
-        // Number of inputs, number of hidden neurons (one layer), number of outputs
-        int numInputs = 2;
-        int numHiddenLayer = 4;
-        int numOutputs = 1;
-
         // Initialize weights between input layer and hidden layer
-        this.v_inputToHidden = new double[numInputs+1][numHiddenLayer];
-        for (int j = 0; j < numHiddenLayer; j++){
-            for (int i = 0; i <= numInputs; i++){
+        this.v_inputToHidden = new double[this.numInputs + 1][this.numHiddenLayerNeurons];
+        for (int j = 0; j < this.numHiddenLayerNeurons; j++){
+            for (int i = 0; i <= this.numInputs; i++){
                 this.v_inputToHidden[i][j] = minWeight + rand.nextFloat() * (maxWeight - minWeight);
             }
         }
 
         // Initialize weights between hidden layer and output layer
-        this.w_hiddenToOutput = new double[numHiddenLayer+1][numOutputs];
-        for (int j = 0; j < numOutputs; j++){
-            for (int i = 0; i <= numHiddenLayer; i++){
+        this.w_hiddenToOutput = new double[this.numHiddenLayerNeurons + 1][this.numOutput];
+        for (int j = 0; j < this.numOutput; j++){
+            for (int i = 0; i <= this.numHiddenLayerNeurons; i++){
                 this.w_hiddenToOutput[i][j] = minWeight + rand.nextFloat() * (maxWeight - minWeight);
             }
         }
 
         // Initialize the weight correction terms (changes) to zero (no correction term for the first iteration)
-        this.v_inputToHidden_corrTermPrev = new double[numInputs + 1][numHiddenLayer];
-        this.w_hiddenToOutput_corrTermPrev = new double[numHiddenLayer + 1][numOutputs];
+        this.v_inputToHidden_corrTermPrev = new double[this.numInputs + 1][this.numHiddenLayerNeurons];
+        this.w_hiddenToOutput_corrTermPrev = new double[this.numHiddenLayerNeurons + 1][this.numOutput];
     }
 
     /**
      * Initialize the weights to 0.
      */
     public void zeroWeights(){
-        // Number of inputs, number of hidden neurons (one layer), number of outputs
-        int numInputs = 2;
-        int numHiddenLayer = 4;
-        int numOutputs = 1;
 
         // Initialize weights between input layer and hidden layer
-        double[][] v_ij = new double[numInputs+1][numHiddenLayer];
-        for (int j = 0; j < numHiddenLayer; j++){
-            for (int i = 0; i <= numInputs; i++){
+        double[][] v_ij = new double[this.numInputs+1][this.numHiddenLayerNeurons];
+        for (int j = 0; j < this.numHiddenLayerNeurons; j++){
+            for (int i = 0; i <= this.numInputs; i++){
                 v_ij[i][j] = 0.0;
             }
         }
 
         // Initialize weights between hidden layer and output layer
-        double[][] w_ij = new double[numHiddenLayer+1][numOutputs];
-        for (int j = 0; j < numOutputs; j++){
-            for (int i = 0; i <= numHiddenLayer; i++){
+        double[][] w_ij = new double[this.numHiddenLayerNeurons+1][this.numOutput];
+        for (int j = 0; j < this.numOutput; j++){
+            for (int i = 0; i <= this.numHiddenLayerNeurons; i++){
                 w_ij[i][j] = 0.0;
             }
         }
@@ -575,6 +570,16 @@ public class NeuralNetED implements NeuralNetInterfaceSS{
         // Close file
         inputFile.close();
         inputReader.close();
+
+    }
+
+    public void loadProcessedLuT() throws IOException {
+        ProcessLuT pl = new ProcessLuT();
+        pl.load_file();
+
+        xorPatterns = pl.stateActionPatterns;
+        xorExpectedOutput = pl.stateActionPatternsExpectedOutput;
+        numPairs = xorExpectedOutput.length;
 
     }
 

@@ -96,7 +96,7 @@ public class StateActionLookupTableD4 implements LUTInterface {
         saveFile.println(numDim1Levels * numDim2Levels * numDim3Levels * numDim4Levels);
 
         // Second line is the number of dimensions per row
-        saveFile.println(5);
+        saveFile.println(4);
 
         for (int a = 0; a < numDim1Levels; a++) {
             for (int b = 0; b < numDim2Levels; b++) {
