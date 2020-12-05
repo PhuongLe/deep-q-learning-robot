@@ -1,14 +1,20 @@
 package ece.backpropagation;
 
+import ece.robocode.LogFile;
+import javafx.util.Pair;
 import robocode.RobocodeFileOutputStream;
 import ece.common.NeuralNetInterfaceSS;
 import java.io.*;
-import java.util.ArrayList;
-import java.util.Arrays;
-import java.util.List;
-import java.util.Random;
+import java.text.SimpleDateFormat;
+import java.util.*;
 
 public class NeuralNetED implements NeuralNetInterfaceSS{
+
+    // Files
+    static LogFile log = null;
+    static String baseFolder = "D:\\Work\\Courses\\Winter2020Term1\\CPEN502ArchitectureForLearningSystems\\Assignment3\\Phoebes_repo\\Logs_weights\\" + new SimpleDateFormat("yyyy-MM-dd-HH-mm-ss").format(new Date());
+    static String NNlogFileName = new SimpleDateFormat("yyyy-MM-dd-HH-mm-ss").format(new Date()) + "-NN-hyperparameters.log";
+    static String weightsFileName = baseFolder + "-NN-weights.log";
 
     final double[] bias_arr = {1.0}; // The input for each neurons bias weight
     final double error_threshold = 0.05;
@@ -31,8 +37,8 @@ public class NeuralNetED implements NeuralNetInterfaceSS{
 //    double[] xorExpectedOutput = {-1,1,1,-1};
 //    int numPairs = xorExpectedOutput.length;
     double[][] xorPatterns;
-    double[] xorExpectedOutput ;
-    int numPairs ;
+    double[] xorExpectedOutput;
+    int numPairs;
 
 
     double[] zDotProduct;
@@ -138,6 +144,31 @@ public class NeuralNetED implements NeuralNetInterfaceSS{
         catch (Exception e){
             System.out.println(e.getMessage());
         }
+        try{
+            // Save hyperparameters
+            File log_file = new File("D:\\Work\\Courses\\Winter2020Term1\\CPEN502ArchitectureForLearningSystems\\Assignment3\\Phoebes_repo\\Logs_weights\\", NNlogFileName);
+            if(!log_file.exists()){
+                log_file.createNewFile();
+            }
+            LogFile log = new LogFile(log_file);
+            log.stream.printf("numberInputs,   %d\n", numInputs);
+            log.stream.printf("numberHiddenNeurons,   %d\n", numHiddenLayerNeurons);
+            log.stream.printf("numberOutputs, %d\n", numOutput);
+            log.stream.printf("learningRate, %2.6f\n", learningRate);
+            log.stream.printf("momentum, %2.6f\n", momentumValue);
+            log.closeStream();
+
+            // Save weights
+            File logWeights = new File(weightsFileName);
+            if(!logWeights.exists()){
+                logWeights.createNewFile();
+            }
+            save(logWeights);
+        }
+        catch (Exception e){
+            System.out.println(e.getMessage());
+        }
+
 
     }
 

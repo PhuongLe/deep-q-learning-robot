@@ -38,4 +38,9 @@ public class LogFile {
             stream.printf("%s:   %2.2f\n", parameters[i].getKey(), parameters[i].getValue());
         }
     }
+    public void closeStream(){
+        if(stream!=null){
+            stream.close();
+        }
+    }
 } // End of public class LogFile
