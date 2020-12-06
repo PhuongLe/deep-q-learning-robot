@@ -5,6 +5,7 @@ import ece.common.*;
 import javafx.util.Pair;
 
 import java.io.IOException;
+import java.util.Random;
 
 /**
  * This robot is cloned from RLRobotV3 which has
@@ -16,7 +17,40 @@ public class NeuralNetworkRobot extends QFunctionRobot {
     static private NeuralNetInterface policyNetwork;
     public static Experience[] experiences;
     private static int NUM_TIMES_TO_SYNC_VALUE_FUNCTIONS = 100;
-    private static int REPLAY_MEMORY_SIZE = 5;
+    private static int REPLAY_MEMORY_SIZE = 1; // set it as 1 to experiment one back propagation
+    private static int REPLAY_MEMORY_RANDOM_MINI_BATCH_SIZE = 1; //it must be less than REPLAY_MEMORY_SIZE
+    private static int NUM_OBSERVATION = 2; //NUM_OBSERVATION must be greater than REPLAY_MEMORY_SIZE
+
+    static LogFile logQChangesFile = null;
+    static String logQChangesFileName = baseFolder+ "-robocode-q-changes.log";
+    static LogFile logLossFile = null;
+    static String logLossFileName = baseFolder+ "-robocode-loss.log";
+    //double lastCheckingQValue;
+    double precedingPreviousQValue;
+    double qChange;
+    double loss;
+
+    private static Random random = new Random();
+
+    @Override
+    protected void initializeLog() {
+        super.initializeLog();
+        if (logQChangesFile == null) {
+            logQChangesFile = new LogFile(getDataFile(logQChangesFileName));
+            logQChangesFile.printHyperParameters(this.metadata());
+        }
+    }
+
+    @Override
+    protected void trackResults() {
+        super.trackResults();
+
+        //track the difference between output Q value with the prior Q value
+        logQChangesFile.stream.printf("%2.1f\n", 100.0 * qChange);
+
+        //track the loss between output Q value with the target Q value of the previous state action
+        logQChangesFile.stream.printf("%2.1f\n", 100.0 * loss);
+    }
 
     @Override
     protected void initializeQLearning() throws IOException {
@@ -28,6 +62,10 @@ public class NeuralNetworkRobot extends QFunctionRobot {
         policyNetwork.cloneWeights(targetNetwork);
     }
 
+    /**
+     * Update experiences
+     * @throws IOException
+     */
     @Override
     protected void prePerformingValueFunctions() throws IOException {
         //save experience to replay memory
@@ -35,14 +73,6 @@ public class NeuralNetworkRobot extends QFunctionRobot {
             ArrayHelper.pop(experiences);
         }
         ArrayHelper.push(experiences, new Experience(this.previousState, this.previousAction, this.reward, this.currentState));
-
-        //Sample random batch from replay memory. In this project, it is all reply_memory_size
-
-        //Preprocess states from batch
-
-        //Pass batch of preprocessed states to policy network.
-
-        //Calculate loss between output Q-values and target Q-values.
     }
 
     @Override
@@ -58,26 +88,50 @@ public class NeuralNetworkRobot extends QFunctionRobot {
      */
     @Override
     protected void performValueFunction(Pair<Action.enumActions, Double> bestActionValue) {
-        //First, calculate loss between output Q-value of prior state action and target Q-value (max Q-value) of current state
-
-        double[] previousStateAction = previousState.StateActionValue(previousAction.ordinal());
-
-        //Q-value of prior state action
-        double priorQ = targetNetwork.outputFor(previousStateAction);
-
-        double maxQ;
-        if (bestActionValue == null) {
-            maxQ = GetBestAction(currentState).getValue();
-        }
-        else
-        {
-            maxQ = bestActionValue.getValue();
+        // only train if done observing
+        if (numOfMoves < NUM_OBSERVATION){
+            return;
         }
 
-        double loss = ALPHA*(reward + GAMMA*maxQ - priorQ);
+        //generate random mini batch state-actions from replay memory
+        int[] randomBatchIndexs = new int[REPLAY_MEMORY_RANDOM_MINI_BATCH_SIZE];
 
-        //Second, update weights in the policy network to minimize lost
-        targetNetwork.backwardPropagation(previousStateAction, loss);
+        //for a shake of easy monitoring robot performance, always put the previous state-action on the random batch
+        randomBatchIndexs[0] = REPLAY_MEMORY_SIZE - 1;
+
+        int miniCount = 1;
+        while (miniCount < REPLAY_MEMORY_RANDOM_MINI_BATCH_SIZE){
+            int randomIndex = random.nextInt(REPLAY_MEMORY_SIZE);
+            boolean existed = false;
+            for (int i = 0; i <randomBatchIndexs.length; i++){
+                if (randomBatchIndexs[i] == randomIndex){
+                    existed = true;
+                    break;
+                }
+            }
+            if (!existed){
+                randomBatchIndexs[miniCount] = randomIndex;
+                miniCount++;
+            }
+        }
+
+        //Sample random batch from replay memory. In this project, it is all reply_memory_size
+        for (int i = 0; i< randomBatchIndexs.length; i++){
+            int experienceIndex = randomBatchIndexs[i];
+            double[] previousStateAction = experiences[experienceIndex].previousState.StateActionValue(experiences[experienceIndex].previousAction.ordinal());
+
+            double priorQ = policyNetwork.outputFor(previousStateAction);
+            double maxQ = this.getBestAction(experiences[experienceIndex].currentState).getValue();
+
+            loss = ALPHA*(reward + GAMMA*maxQ - priorQ);
+            policyNetwork.backwardPropagation(previousStateAction, loss);
+            
+            //track qChange and loss for monitoring robot and neural network performance
+            if (i == randomBatchIndexs.length - 1){
+                qChange = priorQ - precedingPreviousQValue;
+                precedingPreviousQValue = priorQ;
+            }
+        }
     }
 
     /**
@@ -86,7 +140,7 @@ public class NeuralNetworkRobot extends QFunctionRobot {
      * @return
      */
     @Override
-    protected Pair<Action.enumActions, Double> GetBestAction(State state)
+    protected Pair<Action.enumActions, Double> getBestAction(State state)
     {
         int action = 0;
         double bestQ = -Double.MAX_VALUE;
