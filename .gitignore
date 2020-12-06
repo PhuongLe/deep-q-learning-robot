@@ -3,6 +3,7 @@
 
 # Log file
 *.log
+!Matlab_processing/Process_LuT/2020-12-04-00-57-05-robocode-lut_preprocess.log
 
 # BlueJ files
 *.ctxt
