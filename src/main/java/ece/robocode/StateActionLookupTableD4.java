@@ -6,13 +6,13 @@ import robocode.RobocodeFileOutputStream;
 import java.io.*;
 
 public class StateActionLookupTableD4 implements LUTInterface {
-    private  int numDim1Levels;
-    private  int numDim2Levels;
-    private  int numDim3Levels;
-    private  int numDim4Levels;
+    private final int numDim1Levels;
+    private final int numDim2Levels;
+    private final int numDim3Levels;
+    private final int numDim4Levels;
 
-    private double[][][][] lookupTable;
-    private int[][][][] visits;
+    private final double[][][][] lookupTable;
+    private final int[][][][] visits;
 
     public StateActionLookupTableD4(
             int numDim1Levels,
@@ -51,6 +51,30 @@ public class StateActionLookupTableD4 implements LUTInterface {
     }
 
     @Override
+    public double GetScaleSize() {
+        double min_q_value = Double.MAX_VALUE;
+        double max_q_value = -Double.MAX_VALUE;
+
+        double visiting_q_value = 0.0f;
+        for (int a = 0; a <numDim1Levels; a++) {
+            for (int b = 0; b <numDim2Levels; b++) {
+                for (int c = 0; c < numDim3Levels; c++) {
+                    for (int d = 0; d <numDim4Levels; d++) {
+                        visiting_q_value = lookupTable[a][b][c][d];
+                        if (visiting_q_value > max_q_value){
+                            max_q_value = visiting_q_value;
+                        }
+                        if (visiting_q_value < min_q_value){
+                            min_q_value = visiting_q_value;
+                        }
+                    }
+                }
+            }
+        }
+        return max_q_value - min_q_value;
+    }
+
+    @Override
     public double outputFor(double[] x) throws ArrayIndexOutOfBoundsException{
         if (x.length != 4)
             throw new ArrayIndexOutOfBoundsException();
@@ -65,8 +89,9 @@ public class StateActionLookupTableD4 implements LUTInterface {
     /**
      * using currentReward to compute Q value then update it to Lookup table
      * @param x        The input vector
-     * @param target
-     * @return
+     * @param target The new value to learn
+     * @return none
+     * @throws ArrayIndexOutOfBoundsException if the table dimension is different than 4
      */
     @Override
     public double train(double[] x, double target) throws ArrayIndexOutOfBoundsException{
@@ -93,10 +118,13 @@ public class StateActionLookupTableD4 implements LUTInterface {
         }
 
         // First line is the number of rows of data
-        saveFile.println(numDim1Levels * numDim2Levels * numDim3Levels * numDim4Levels);
+        for (int i : new int[]{numDim1Levels * numDim2Levels * numDim3Levels * numDim4Levels, 4}) {
+            if (saveFile != null) {
+                saveFile.println(i);
+            }
+        }
 
         // Second line is the number of dimensions per row
-        saveFile.println(4);
 
         for (int a = 0; a < numDim1Levels; a++) {
             for (int b = 0; b < numDim2Levels; b++) {
@@ -108,7 +136,9 @@ public class StateActionLookupTableD4 implements LUTInterface {
                                 lookupTable[a][b][c][d],
                                 visits[a][b][c][d]
                         );
-                        saveFile.println(row);
+                        if (saveFile != null) {
+                            saveFile.println(row);
+                        }
                     }
                 }
             }
@@ -124,9 +154,9 @@ public class StateActionLookupTableD4 implements LUTInterface {
         int numExpectedRows = numDim1Levels * numDim2Levels * numDim3Levels * numDim4Levels;
 
         // Check the number of rows is compatible
-        int numRows = Integer.valueOf( inputReader.readLine() );
+        int numRows = Integer.parseInt( inputReader.readLine() );
         // Check the number of dimensions is compatible
-        int numDimensions = Integer.valueOf( inputReader.readLine() );
+        int numDimensions = Integer.parseInt( inputReader.readLine() );
 
         if ( numRows != numExpectedRows || numDimensions != 4) {
             System.out.printf (
@@ -143,7 +173,7 @@ public class StateActionLookupTableD4 implements LUTInterface {
                     for (int d = 0; d < numDim4Levels; d++) {
                         // Read line formatted like this: <e,d,e2,d2,a,q,visits\n>
                         String line = inputReader.readLine();
-                        String tokens[] = line.split(",");
+                        String[] tokens = line.split(",");
                         double q = Double.parseDouble(tokens[4]);
                         int v = Integer.parseInt(tokens[5]);
                         lookupTable[a][b][c][d] = q;
