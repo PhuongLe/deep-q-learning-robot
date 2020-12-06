@@ -25,7 +25,7 @@ public class NeuralNetworkRobot extends QFunctionRobot {
     static String logQChangesFileName = baseFolder+ "-robocode-q-changes.log";
     static LogFile logLossFile = null;
     static String logLossFileName = baseFolder+ "-robocode-loss.log";
-    //double lastCheckingQValue;
+
     double precedingPreviousQValue;
     double qChange;
     double loss;
@@ -39,6 +39,10 @@ public class NeuralNetworkRobot extends QFunctionRobot {
             logQChangesFile = new LogFile(getDataFile(logQChangesFileName));
             logQChangesFile.printHyperParameters(this.metadata());
         }
+        if (logLossFile == null) {
+            logLossFile = new LogFile(getDataFile(logLossFileName));
+            logLossFile.printHyperParameters(this.metadata());
+        }
     }
 
     @Override
@@ -49,7 +53,7 @@ public class NeuralNetworkRobot extends QFunctionRobot {
         logQChangesFile.stream.printf("%2.1f\n", 100.0 * qChange);
 
         //track the loss between output Q value with the target Q value of the previous state action
-        logQChangesFile.stream.printf("%2.1f\n", 100.0 * loss);
+        logLossFile.stream.printf("%2.1f\n", 100.0 * loss);
     }
 
     @Override

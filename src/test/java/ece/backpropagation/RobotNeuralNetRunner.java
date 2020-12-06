@@ -10,15 +10,15 @@
     public class RobotNeuralNetRunner {
         static String baseFolder = "d:\\Google Drive\\LXP\\UBC\\Term 3\\CPEN 502 - ML\\Assignments\\Robocode\\out\\report\\" + new SimpleDateFormat("yyyy-MM-dd-HH-mm-ss") .format(new Date());
         static String runnerReportFileName = baseFolder+ "-runner.log";
-        static String nnWeightsFileName = baseFolder+ "nn_weights.dat";
+        static String nnWeightsFileName = baseFolder+ "-nn_weights.dat";
 
-        private static final int NUM_TRIALS = 100;
+        private static final int NUM_TRIALS = 10;
 
         static double HIDDEN_BIAS = 1.0;
         static double OUTPUT_BIAS = 1.0;
 
         private int train(boolean showErrorAtEachEpoch, boolean showHiddenWeightsAtEachEpoch, boolean showErrorAtConverge) throws IOException {
-            double target = 0.05;
+            double target = 0.00005;
 
             NeuralNetInterface nn = new StateActionNeuralNet();
 

@@ -327,9 +327,9 @@ public class XorNeuralNet implements NeuralNetInterface {
 
         str.append("\n");
         str.append("WeightToHidden = ");
-        for (int i=0; i<hiddenWeight.length; i ++ ){
+        for (int i=0; i< hiddenWeight.length; i ++ ){
             str.append("{");
-            for (int j=0; j<hiddenWeight[i].length; j ++ ) {
+            for (int j=0; j< hiddenWeight[i].length; j ++ ) {
                 str.append("w" + i + j + ":" + hiddenWeight[i][j] + " ");
             }
             str.append("}");
@@ -374,33 +374,37 @@ public class XorNeuralNet implements NeuralNetInterface {
     }
 
     @Override
-    public void save(File argFile) {
-        PrintStream saveFile = null;
+    public void save(File argFile) throws IOException {
+        FileWriter writer;
+        PrintWriter output;
 
         try{
-            saveFile = new PrintStream(new RobocodeFileOutputStream(argFile));
+            writer = new FileWriter(argFile, true);
+            output = new PrintWriter(writer);
         } catch (IOException e) {
             System.out.println("*** Could not create output stream for NN save file");
+            return;
         }
 
-        saveFile.println(numInputs);
-        saveFile.println(numHiddenNeurons);
+        output.println(numInputs);
+        output.println(numHiddenNeurons);
 
         //First save the weights from the input to hidden neurons (one line per weight)
-        for (int i=0; i<numHiddenNeurons; i++){
-            for (int j=0; j < numInputs;j++){
-                saveFile.println(hiddenWeight[i][j]);
+        for (int i=0; i < numInputs; i++){
+            for (int j=0; j < numHiddenNeurons; j++){
+                output.println(hiddenWeight[i][j]);
             }
-            saveFile.println(hiddenBias);
+            output.println(hiddenBias);
         }
 
         //Now save the weights from hidden to the output neuron
-        for (int i=0; i<numHiddenNeurons; i++){
-            saveFile.println(outputWeight[i]);
+        for (int i=0; i < numHiddenNeurons; i++){
+            output.println(outputWeight[i]);
         }
-        saveFile.println(outputBias); //save bias weight for output neuron too
+        output.println(outputBias); //save bias weight for output neuron too
 
-        saveFile.close();
+        output.close();
+        writer.close();
     }
 
     /**
