@@ -80,4 +80,6 @@ public interface NeuralNetInterface extends CommonInterface {
 
     double getHiddenBias();
     double getOutputBias();
+
+    int getNumInputs();
 } // End of public interface NeuralNetInterface

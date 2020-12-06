@@ -369,6 +369,11 @@ public class XorNeuralNet implements NeuralNetInterface {
     }
 
     @Override
+    public int getNumInputs() {
+        return numInputs;
+    }
+
+    @Override
     public void save(File argFile) {
         PrintStream saveFile = null;
 

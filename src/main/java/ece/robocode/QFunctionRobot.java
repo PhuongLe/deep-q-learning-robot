@@ -60,11 +60,7 @@ public class QFunctionRobot extends AdvancedRobot {
     static private StateActionLookupTableD4 q;
 
     public void run() {
-        // Create log file
-        if (log == null) {
-            log = new LogFile(getDataFile(logFileName));
-            log.printHyperParameters(this.metadata());
-        }
+        initializeLog();
 
         try {
             initializeQLearning();
@@ -78,6 +74,15 @@ public class QFunctionRobot extends AdvancedRobot {
         setAdjustRadarForGunTurn(true);
 
         turnRadarRightRadians(Double.POSITIVE_INFINITY);
+    }
+
+    protected void initializeLog() {
+        // Create log file
+        if (log == null) {
+            log = new LogFile(getDataFile(logFileName));
+            log.printHyperParameters(this.metadata());
+        }
+
     }
 
     protected void initializeQLearning() throws IOException {
@@ -214,7 +219,7 @@ public class QFunctionRobot extends AdvancedRobot {
         numOfMoves = 0;
     }
 
-    private void trackResults() {
+    protected void trackResults() {
         //save the current win percentage for each chunk_size
         log.stream.printf("%2.1f\n", 100.0 * totalNumWins / totalNumRounds);
     }
@@ -258,7 +263,7 @@ public class QFunctionRobot extends AdvancedRobot {
      * @param state
      * @return
      */
-    protected Pair<Action.enumActions, Double> GetBestAction(State state)
+    protected Pair<Action.enumActions, Double> getBestAction(State state)
     {
         int action = 0;
         double bestQ = -Double.MAX_VALUE;
@@ -283,7 +288,7 @@ public class QFunctionRobot extends AdvancedRobot {
         double priorQ = q.outputFor(previousStateAction);
         double maxQ;
         if (bestActionValue == null) {
-             maxQ = GetBestAction(currentState).getValue();
+             maxQ = getBestAction(currentState).getValue();
         }
         else
         {
@@ -302,7 +307,7 @@ public class QFunctionRobot extends AdvancedRobot {
         return priorQ + ALPHA*(reward + GAMMA*currentQ - priorQ);
     }
 
-    private Pair<String, Double>[] metadata() {
+    protected Pair<String, Double>[] metadata() {
         return new Pair[]{
                 new Pair("gamma", GAMMA),
                 new Pair("alpha", ALPHA),
@@ -329,7 +334,7 @@ public class QFunctionRobot extends AdvancedRobot {
             //take action
             if(Math.random() > epsilon )
             {
-                bestActionValue = this.GetBestAction(currentState);
+                bestActionValue = this.getBestAction(currentState);
                 currentAction = bestActionValue.getKey();
             }else{ //try exploration
                 currentAction = Action.SelectRandomAction();
