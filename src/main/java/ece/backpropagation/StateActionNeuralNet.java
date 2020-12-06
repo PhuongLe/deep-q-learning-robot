@@ -15,9 +15,9 @@ public class StateActionNeuralNet extends XorNeuralNet {
 
     public static int NUM_TRAINING_SET = State.NUM_ENERGY * State.NUM_DISTANCE * State.NUM_GUN_HEAT * Action.NUM_ACTIONS;
     public static int NUM_INPUTS = State.NUM_DISTANCE + State.NUM_ENERGY + State.NUM_GUN_HEAT + Action.NUM_ACTIONS;
-    public static int NUM_HIDDEN = 15;
-    public static double LEARNING_RATE = 0.1;
-    public static double MOMENTUM = 0.1;
+    public static int NUM_HIDDEN = 10;
+    public static double LEARNING_RATE = 0.01;
+    public static double MOMENTUM = 0.9;
 
     public static double ARG_A = -1;
     public static double ARG_B = 1;

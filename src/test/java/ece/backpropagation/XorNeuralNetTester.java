@@ -94,10 +94,10 @@ public class XorNeuralNetTester {
 
         double computedError = testNN.train(inputVectors, target);
 
-        double expectedError = -0.5;
+        double expectedError = -0.731058579;
 
         //Test computed error on output neuron
-        Assertions.assertEquals(expectedError, computedError);
+        Assertions.assertEquals(expectedError, computedError, 0.0001);
     }
 
     /**
