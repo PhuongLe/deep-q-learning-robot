@@ -1,6 +1,6 @@
 package ece.backpropagation;
 
-import ece.robocode.LogFile;
+import ece.common.LogFile;
 import javafx.util.Pair;
 import robocode.RobocodeFileOutputStream;
 import ece.common.NeuralNetInterfaceSS;
