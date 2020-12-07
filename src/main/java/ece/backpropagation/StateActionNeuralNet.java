@@ -1,6 +1,7 @@
 package ece.backpropagation;
 
 import ece.common.Action;
+import ece.common.ArrayHelper;
 import ece.common.Experience;
 import ece.common.State;
 import ece.robocode.StateActionLookupTableD4;
@@ -69,93 +70,149 @@ public class StateActionNeuralNet extends XorNeuralNet {
         }
     }
 
+    public static double[] MapStateActionToInputVector(State.enumEnergy energy, State.enumDistance distance, State.enumGunHeat gunHeat, Action.enumActions action){
+        double[] results = new double[NUM_INPUTS];
+        double[] energyBipolar = mapEnergyToBipolarFormat(energy);
+        for (int i = 0; i< energyBipolar.length; i++){
+            results[i] = energyBipolar[i];
+        }
+        for (int i = 0; i< energyBipolar.length; i++){
+            results[i + State.NUM_ENERGY] = energyBipolar[i];
+        }
+        for (int i = 0; i< energyBipolar.length; i++){
+            results[i + State.NUM_ENERGY + State.NUM_DISTANCE] = energyBipolar[i];
+        }
+        for (int i = 0; i< energyBipolar.length; i++){
+            results[i + State.NUM_ENERGY + State.NUM_DISTANCE + State.NUM_GUN_HEAT] = energyBipolar[i];
+        }
+        return results;
+    }
+
     private void addEnergyBipolarFormatToDataSet(State.enumEnergy energy, int trainingSetIndex) {
-        switch (energy){
-            case low:
-                inputValues[trainingSetIndex][0] = +1;
-                inputValues[trainingSetIndex][1] = -1;
-                inputValues[trainingSetIndex][2] = -1;
-                break;
-            case medium:
-                inputValues[trainingSetIndex][0] = -1;
-                inputValues[trainingSetIndex][1] = 1;
-                inputValues[trainingSetIndex][2] = -1;
-                break;
-            case high:
-                inputValues[trainingSetIndex][0] = -1;
-                inputValues[trainingSetIndex][1] = -1;
-                inputValues[trainingSetIndex][2] = +1;
-                break;
-            default:
-                throw new IllegalStateException("Unexpected value: " + energy);
+        double[] inputVector = mapEnergyToBipolarFormat(energy);
+        for (int i = 0; i< inputVector.length; i++){
+            inputValues[trainingSetIndex][i] = inputVector[i];
         }
     }
 
     private void addDistanceBipolarFormatToDataSet(State.enumDistance distance, int trainingSetIndex) {
-        switch (distance){
-            case veryClose:
-                inputValues[trainingSetIndex][3] = +1;
-                inputValues[trainingSetIndex][4] = -1;
-                inputValues[trainingSetIndex][5] = -1;
-                break;
-            case near:
-                inputValues[trainingSetIndex][3] = -1;
-                inputValues[trainingSetIndex][4] = 1;
-                inputValues[trainingSetIndex][5] = -1;
-                break;
-            case far:
-                inputValues[trainingSetIndex][3] = -1;
-                inputValues[trainingSetIndex][4] = -1;
-                inputValues[trainingSetIndex][5] = +1;
-                break;
-            default:
-                throw new IllegalStateException("Unexpected value: " + distance);
+        double[] inputVector = mapDistanceToBipolarFormat(distance);
+        for (int i = 0; i< inputVector.length; i++){
+            inputValues[trainingSetIndex][i + State.NUM_ENERGY] = inputVector[i];
         }
     }
 
     private void addGunHeatBipolarFormatToDataSet(State.enumGunHeat gunHeat, int trainingSetIndex) {
-        switch (gunHeat){
-            case low:
-                inputValues[trainingSetIndex][6] = +1;
-                inputValues[trainingSetIndex][7] = -1;
-                break;
-            case high:
-                inputValues[trainingSetIndex][6] = -1;
-                inputValues[trainingSetIndex][7] = 1;
-                break;
-            default:
-                throw new IllegalStateException("Unexpected value: " + gunHeat);
+        double[] inputVector = mapGunHeatToBipolarFormat(gunHeat);
+        for (int i = 0; i< inputVector.length; i++){
+            inputValues[trainingSetIndex][i + State.NUM_ENERGY + State.NUM_DISTANCE] = inputVector[i];
         }
     }
 
     private void addActionBipolarFormatToDataSet(Action.enumActions action, int trainingSetIndex) {
+        double[] inputVector = mapActionToBipolarFormat(action);
+        for (int i = 0; i< inputVector.length; i++){
+            inputValues[trainingSetIndex][i + State.NUM_ENERGY + State.NUM_DISTANCE + State.NUM_GUN_HEAT] = inputVector[i];
+        }
+    }
+
+    private static double[] mapEnergyToBipolarFormat(State.enumEnergy energy){
+        double[] result = new double[State.NUM_ENERGY];
+        switch (energy){
+            case low:
+                result[0] = +1;
+                result[1] = -1;
+                result[2] = -1;
+                break;
+            case medium:
+                result[0] = -1;
+                result[1] = 1;
+                result[2] = -1;
+                break;
+            case high:
+                result[0] = -1;
+                result[1] = -1;
+                result[2] = +1;
+                break;
+            default:
+                throw new IllegalStateException("Unexpected value: " + energy);
+        }
+        return result;
+    }
+
+    private static double[] mapDistanceToBipolarFormat(State.enumDistance distance){
+        double[] result = new double[State.NUM_DISTANCE];
+        switch (distance){
+            case veryClose:
+                result[0] = +1;
+                result[1] = -1;
+                result[2] = -1;
+                break;
+            case near:
+                result[0] = -1;
+                result[1] = 1;
+                result[2] = -1;
+                break;
+            case far:
+                result[0] = -1;
+                result[1] = -1;
+                result[2] = +1;
+                break;
+            default:
+                throw new IllegalStateException("Unexpected value: " + distance);
+        }
+        return result;
+    }
+
+    private static double[] mapGunHeatToBipolarFormat(State.enumGunHeat gunHeat){
+        double[] result = new double[State.NUM_GUN_HEAT];
+        switch (gunHeat){
+            case low:
+                result[6] = +1;
+                result[7] = -1;
+                break;
+            case high:
+                result[6] = -1;
+                result[7] = 1;
+                break;
+            default:
+                throw new IllegalStateException("Unexpected value: " + gunHeat);
+        }
+        return result;
+    }
+
+    private static double[] mapActionToBipolarFormat(Action.enumActions action){
+        double[] result = new double[Action.NUM_ACTIONS];
         switch (action){
             case attack:
-                inputValues[trainingSetIndex][8] = +1;
-                inputValues[trainingSetIndex][9] = -1;
-                inputValues[trainingSetIndex][10] = -1;
-                inputValues[trainingSetIndex][11] = -1;
+                result[8] = +1;
+                result[9] = -1;
+                result[10] = -1;
+                result[11] = -1;
                 break;
             case avoid:
-                inputValues[trainingSetIndex][8] = -1;
-                inputValues[trainingSetIndex][9] = +1;
-                inputValues[trainingSetIndex][10] = -1;
-                inputValues[trainingSetIndex][11] = -1;
+                result[8] = -1;
+                result[9] = +1;
+                result[10] = -1;
+                result[11] = -1;
                 break;
             case runaway:
-                inputValues[trainingSetIndex][8] = -1;
-                inputValues[trainingSetIndex][9] = -1;
-                inputValues[trainingSetIndex][10] = +1;
-                inputValues[trainingSetIndex][11] = -1;
+                result[8] = -1;
+                result[9] = -1;
+                result[10] = +1;
+                result[11] = -1;
                 break;
             case fire:
-                inputValues[trainingSetIndex][8] = -1;
-                inputValues[trainingSetIndex][9] = -1;
-                inputValues[trainingSetIndex][10] = -1;
-                inputValues[trainingSetIndex][11] = +1;
+                result[8] = -1;
+                result[9] = -1;
+                result[10] = -1;
+                result[11] = +1;
                 break;
             default:
                 throw new IllegalStateException("Unexpected value: " + action);
         }
+        return result;
     }
+
+
 }

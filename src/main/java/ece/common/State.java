@@ -1,5 +1,7 @@
 package ece.common;
 
+import ece.backpropagation.StateActionNeuralNet;
+
 public class State {
     public enum enumEnergy{low, medium, high}
     public enum enumDistance{veryClose, near, far}
@@ -54,6 +56,10 @@ public class State {
 
     public double[] StateActionValue(int action){
         return new double[]{this.energy.ordinal(), this.distance.ordinal(), this.gunHeat.ordinal(), action};
+    }
+
+    public double[] StateActionInputVector(int action){
+        return StateActionNeuralNet.MapStateActionToInputVector(this.energy, this.distance, this.gunHeat, Action.enumActions.values()[action]);
     }
 
     public boolean isNotEqual(State previousState) {

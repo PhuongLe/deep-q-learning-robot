@@ -78,7 +78,6 @@ public class QLearningRobot extends AdvancedRobot {
             log = new LogFile(getDataFile(logFileName));
             log.printHyperParameters(this.metadata());
         }
-
     }
 
     /**
@@ -315,7 +314,7 @@ public class QLearningRobot extends AdvancedRobot {
             currentAction = Action.SelectRandomAction();
             return;
         }
-        if(currentState.isNotEqual(previousState)) {
+        //if(currentState.isNotEqual(previousState)) {
             if (totalNumRounds > STOP_RANDOM_ACTION_ROUND){ //stop exploration after initial rounds
                 epsilon = 0.0;
             }
@@ -338,8 +337,7 @@ public class QLearningRobot extends AdvancedRobot {
 
             //reset reward
             reward = 0;
-
-        }
+        //}
 
         if(currentAction == Action.enumActions.fire && getGunHeat() != 0)
             reward += badInstantReward;
