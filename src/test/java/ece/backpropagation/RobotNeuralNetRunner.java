@@ -40,18 +40,6 @@
 
 
         public static void main(String []args) throws IOException {
-//            Scanner reader = new Scanner(System.in);
-//            System.out.print("Enter the option you want to run 0.binary 1.bipolar: ");
-//            int option = reader.nextInt();
-//            System.out.print("Enter the number of trials you want to run: ");
-//            int numTrials = reader.nextInt();
-//            System.out.print("Do you want to see error at each epoch y/n?: ");
-//            String showErrors = reader.next();
-//            System.out.print("Do you want to see the hidden weights at each epoch y/n?: ");
-//            String showHiddenWeights = reader.next();
-//            System.out.print("Do you want to see error at converge y/n?: ");
-//            String showErrorAtConverge = reader.next();
-
             String showErrors = "n";
             String showHiddenWeights = "n";
             String showErrorAtConverge = "n";

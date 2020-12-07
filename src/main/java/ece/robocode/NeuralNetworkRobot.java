@@ -19,18 +19,18 @@ public class NeuralNetworkRobot extends QLearningRobot {
     static private final NeuralNetInterface policyNetwork = new StateActionNeuralNet();
     static public Experience[] experiences = new Experience[]{};
     static private final int NUM_TIMES_TO_SYNC_VALUE_FUNCTIONS = 100;
-    static private final int REPLAY_MEMORY_SIZE = 1; // set it as 1 to experiment one back propagation
-    static private final int REPLAY_MEMORY_RANDOM_MINI_BATCH_SIZE = 1; //it must be less than REPLAY_MEMORY_SIZE
-    static private final int NUM_OBSERVATION = 2; //NUM_OBSERVATION must be greater than REPLAY_MEMORY_SIZE
+    static private final int REPLAY_MEMORY_SIZE = 100; // set it as 1 to experiment one back propagation
+    static private final int REPLAY_MEMORY_RANDOM_MINI_BATCH_SIZE = 50; //it must be less than REPLAY_MEMORY_SIZE
+    static private final int NUM_OBSERVATION = 200; //NUM_OBSERVATION must be greater than REPLAY_MEMORY_SIZE
 
     static String stateActionNeuralNetWeightsFileName = StateActionNeuralNet.baseFolder + "nn_weights.dat";
 
     static LogFile logQChangesFile = null;
-    static String logQChangesFileName = baseFolder+ "-robocode-q-changes.log";
+    static String logQChangesFileName = baseFolder + "-robocode-q-changes.log";
     static LogFile logLossFile = null;
-    static String logLossFileName = baseFolder+ "-robocode-loss.log";
+    static String logLossFileName = baseFolder + "-robocode-loss.log";
     static LogFile debugLogFile = null;
-    static String debugLogFileName = baseFolder+ "-debug.log";
+    static String debugLogFileName = baseFolder + "-debug.log";
 
     static double precedingPreviousQValue;
     static double qChange;
@@ -93,8 +93,8 @@ public class NeuralNetworkRobot extends QLearningRobot {
     @Override
     protected void postPerformingValueFunctions() throws IOException {
         if (numOfMoves % NUM_TIMES_TO_SYNC_VALUE_FUNCTIONS == 0){
-            policyNetwork.cloneWeights(targetNetwork);
-            log.stream.printf("postPerformingValueFunctions is called after %d moves", numOfMoves);
+            targetNetwork.cloneWeights(policyNetwork);
+            //log.stream.printf("postPerformingValueFunctions is called after %d moves", numOfMoves);
         }
     }
 
@@ -131,22 +131,27 @@ public class NeuralNetworkRobot extends QLearningRobot {
             }
         }
 
-        double priorQ = 0.0f;
-        double maxQ;
         //Sample random batch from replay memory. In this project, it is all reply_memory_size
         for (int i = 0; i < REPLAY_MEMORY_RANDOM_MINI_BATCH_SIZE; i++){
-            int experienceIndex = randomBatchIndexes[i];
-            double[] previousStateAction = experiences[experienceIndex].previousState.StateActionValue(experiences[experienceIndex].previousAction.ordinal());
-
-            priorQ = policyNetwork.outputFor(previousStateAction);
-            maxQ = this.getBestAction(experiences[experienceIndex].currentState).getValue();
-
-            loss = ALPHA*(reward + GAMMA*maxQ - priorQ);
-            policyNetwork.backwardPropagation(previousStateAction, loss);
+            updateWeights(i, randomBatchIndexes);
         }
-        //track qChange and loss for monitoring robot and neural network performance
-        qChange = priorQ - precedingPreviousQValue;
-        precedingPreviousQValue = priorQ;
+    }
+
+    private void updateWeights(int i,int[] randomBatchIndexes){
+        int experienceIndex = randomBatchIndexes[i];
+        double[] previousStateAction = experiences[experienceIndex].previousState.StateActionValue(experiences[experienceIndex].previousAction.ordinal());
+
+        double priorQ = policyNetwork.outputFor(previousStateAction);
+        double maxQ = this.getBestAction(experiences[experienceIndex].currentState).getValue();
+
+        loss = ALPHA*(reward + GAMMA*maxQ - priorQ);
+        policyNetwork.backwardPropagation(previousStateAction, loss);
+
+        if (i == 0){
+            //track qChange and loss for monitoring robot and neural network performance
+            qChange = priorQ - precedingPreviousQValue;
+            precedingPreviousQValue = priorQ;
+        }
     }
 
     /**

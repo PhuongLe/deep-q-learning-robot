@@ -71,7 +71,7 @@ public class StateActionLookupTableD4 implements LUTInterface {
                 }
             }
         }
-        return max_q_value - min_q_value;
+        return Math.abs(max_q_value - min_q_value);
     }
 
     @Override
