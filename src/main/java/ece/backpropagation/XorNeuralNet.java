@@ -5,13 +5,17 @@ import ece.common.NeuralNetInterface;
 import robocode.RobocodeFileOutputStream;
 
 import java.io.*;
+import java.text.SimpleDateFormat;
 import java.util.ArrayList;
+import java.util.Date;
 import java.util.List;
 import java.util.Random;
 
 //This NeuralNet class is design for a NN of 2+ inputs, 1 hidden layer with 4++ neurons and 1 output
 //The number of training set is 4 for each epoch
 public class XorNeuralNet implements NeuralNetInterface {
+    static String baseFolder = "d:\\Google Drive\\LXP\\UBC\\Term 3\\CPEN 502 - ML\\Assignments\\Robocode\\out\\report\\" + new SimpleDateFormat("yyyy-MM-dd-HH-mm-ss") .format(new Date());
+    static String logFileName = baseFolder+ "-neural-net.log";
     int numTrainingSet = 4;
     int numInputs;
     int numHiddenNeurons;
@@ -59,7 +63,7 @@ public class XorNeuralNet implements NeuralNetInterface {
             double argMomentumTerm,
             double argA,
             double argB,
-            boolean argUseBipolarHiddenNeurons) throws IOException {
+            boolean argUseBipolarHiddenNeurons){
         this.numInputs = argNumInputs;
         this.numHiddenNeurons = argNumHidden;
         this.learningRate = argLearningRate;
@@ -88,8 +92,8 @@ public class XorNeuralNet implements NeuralNetInterface {
     @Override
     public void cloneWeights(NeuralNetInterface targetNetwork) throws IOException {
         double[][] targetHiddentWeights = targetNetwork.getHiddenWeight();
-        for (int i=0; i<numHiddenNeurons; i++){
-            for (int j=0; j < numInputs;j++){
+        for (int i=0; i<numInputs; i++){
+            for (int j=0; j < numHiddenNeurons;j++){
                 this.hiddenWeight[i][j] = targetHiddentWeights[i][j];
             }
             this.hiddenBias = targetNetwork.getHiddenBias();
@@ -272,7 +276,7 @@ public class XorNeuralNet implements NeuralNetInterface {
     }
 
     @Override
-    public void initializeTrainingSet() throws IOException {
+    public void initializeTrainingSet(){
         inputValues = new double[numTrainingSet][numInputs];
         actualOutput = new double[numTrainingSet];
 
@@ -321,7 +325,7 @@ public class XorNeuralNet implements NeuralNetInterface {
         str.append("WeightToOutput = ");
         str.append("{");
         for (int i=0; i<outputWeight.length; i ++ ){
-            str.append(" w" + i + ": "+outputWeight[i] + " ");
+            str.append(" w" + i + ": " + outputWeight[i] + " ");
         }
         str.append("}");
 
@@ -437,8 +441,8 @@ public class XorNeuralNet implements NeuralNetInterface {
 
         // Load the weights from input layer to hidden neurons (one line per weight)
         // Loads the weights for the bias as well
-        for (int j = 0; j < numHiddenNeurons; j++){
-            for (int i = 0; i <= numInputs; i++){
+        for (int i = 0; i < numInputs; i++){
+            for (int j = 0; j < numHiddenNeurons; j++){
                 hiddenWeight[i][j] = Double.valueOf(inputReader.readLine());
             }
             hiddenBias = Double.valueOf(inputReader.readLine());

@@ -17,6 +17,9 @@
         static double HIDDEN_BIAS = 1.0;
         static double OUTPUT_BIAS = 1.0;
 
+        private static NeuralNetInterface bestNetwork = null;
+        private static int bestEpochs = Integer.MAX_VALUE;
+
         private int train(boolean showErrorAtEachEpoch, boolean showHiddenWeightsAtEachEpoch, boolean showErrorAtConverge) throws IOException {
             double target = 0.00005;
 
@@ -26,7 +29,10 @@
             nn.initializeBias(HIDDEN_BIAS, OUTPUT_BIAS);
 
             int num_epoch = nn.run(runnerReportFileName, target, showErrorAtEachEpoch, showHiddenWeightsAtEachEpoch, showErrorAtConverge);
-            nn.save(new File(nnWeightsFileName));
+            if (num_epoch<bestEpochs){
+                bestEpochs = num_epoch;
+                bestNetwork = nn;
+            }
 
             return num_epoch;
         }
@@ -34,18 +40,6 @@
 
 
         public static void main(String []args) throws IOException {
-//            Scanner reader = new Scanner(System.in);
-//            System.out.print("Enter the option you want to run 0.binary 1.bipolar: ");
-//            int option = reader.nextInt();
-//            System.out.print("Enter the number of trials you want to run: ");
-//            int numTrials = reader.nextInt();
-//            System.out.print("Do you want to see error at each epoch y/n?: ");
-//            String showErrors = reader.next();
-//            System.out.print("Do you want to see the hidden weights at each epoch y/n?: ");
-//            String showHiddenWeights = reader.next();
-//            System.out.print("Do you want to see error at converge y/n?: ");
-//            String showErrorAtConverge = reader.next();
-
             String showErrors = "n";
             String showHiddenWeights = "n";
             String showErrorAtConverge = "n";
@@ -66,6 +60,8 @@
                 System.out.println("-- Average convergence rate = " + sum / numCoverages);
                 //System.out.println("-- Number of convergences = " + numCoverages);
                 System.out.println("-- Percentage convergence rate = " + numCoverages*100/NUM_TRIALS + " %");
+
+                bestNetwork.save(new File(nnWeightsFileName));
             }
             else {
                 System.out.println("-- Cannot reach the target after " + NUM_TRIALS + " tries");

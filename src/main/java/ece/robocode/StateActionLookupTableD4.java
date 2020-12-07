@@ -71,7 +71,7 @@ public class StateActionLookupTableD4 implements LUTInterface {
                 }
             }
         }
-        return max_q_value - min_q_value;
+        return Math.abs(max_q_value - min_q_value);
     }
 
     @Override
@@ -148,7 +148,7 @@ public class StateActionLookupTableD4 implements LUTInterface {
 
     @Override
     public void load(String argFileName) throws IOException {
-        FileInputStream inputFile = new FileInputStream( argFileName );
+        FileInputStream inputFile = new FileInputStream(argFileName);
         BufferedReader inputReader = new BufferedReader(new InputStreamReader( inputFile ));
         //int numExpectedRows = numDim1Levels * numDim2Levels * numDim3Levels * numDim4Levels * numDim5Levels;
         int numExpectedRows = numDim1Levels * numDim2Levels * numDim3Levels * numDim4Levels;
