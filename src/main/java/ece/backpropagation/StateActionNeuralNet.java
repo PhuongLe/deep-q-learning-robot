@@ -15,8 +15,8 @@ public class StateActionNeuralNet extends XorNeuralNet {
 
     public static int NUM_TRAINING_SET = State.NUM_ENERGY * State.NUM_DISTANCE * State.NUM_GUN_HEAT * Action.NUM_ACTIONS;
     public static int NUM_INPUTS = State.NUM_DISTANCE + State.NUM_ENERGY + State.NUM_GUN_HEAT + Action.NUM_ACTIONS;
-    public static int NUM_HIDDEN = 10;
-    public static double LEARNING_RATE = 0.01;
+    public static int NUM_HIDDEN = 25;
+    public static double LEARNING_RATE = 0.2;
     public static double MOMENTUM = 0.9;
 
     public static double ARG_A = -1;
@@ -29,13 +29,18 @@ public class StateActionNeuralNet extends XorNeuralNet {
             State.NUM_GUN_HEAT,
             Action.NUM_ACTIONS);
 
-    public StateActionNeuralNet() throws IOException {
+    public StateActionNeuralNet(){
         super(NUM_INPUTS, NUM_HIDDEN, LEARNING_RATE, MOMENTUM, ARG_A, ARG_B, USE_BIPOLAR);
     }
 
     @Override
-    public void initializeTrainingSet() throws IOException {
-        q.load(lutTableFileName);
+    public void initializeTrainingSet() {
+        try{
+            q.load(lutTableFileName);
+        } catch (IOException e) {
+            System.out.println("*** Could not load state action lookup table from file");
+            return;
+        }
         inputValues = new double[NUM_TRAINING_SET][NUM_INPUTS];
         actualOutput = new double[NUM_TRAINING_SET];
 

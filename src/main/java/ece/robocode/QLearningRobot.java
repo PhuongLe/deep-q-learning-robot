@@ -16,7 +16,7 @@ import java.util.Date;
  *      3 states: myEnergy, myDistanceToEnemy, my heat gun
  *      4 actions: attack, avoid, runaway, fire
  */
-public class QFunctionRobot extends AdvancedRobot {
+public class QLearningRobot extends AdvancedRobot {
     static LogFile log = null;
     static String baseFolder = "d:\\Google Drive\\LXP\\UBC\\Term 3\\CPEN 502 - ML\\Assignments\\Robocode\\out\\report\\" + new SimpleDateFormat("yyyy-MM-dd-HH-mm-ss") .format(new Date());
     static String logFileName = baseFolder+ "-robocode.log";
@@ -28,8 +28,8 @@ public class QFunctionRobot extends AdvancedRobot {
     //Discount factor & learning rate used by RL
     protected static double GAMMA = 0.7;
     protected static double ALPHA = 0.5;
-    protected static double EPSILON_INITIAL = 0.5;
-    protected static int STOP_RANDOM_ACTION_ROUND = 3000;
+    protected static double EPSILON_INITIAL = 0.3;
+    protected static int STOP_RANDOM_ACTION_ROUND = 1000;
     protected double epsilon = EPSILON_INITIAL;
 
     protected double reward = 0.0;
@@ -41,32 +41,28 @@ public class QFunctionRobot extends AdvancedRobot {
     //set instantReward to 0 to turn off instant rewards
     protected final double badInstantReward = -3.0;
     protected final double goodInstantReward = 3.0;
-    //    protected final double badInstantReward = 0.0;
-//    protected final double goodInstantReward = 0.0;
 
-    private static final int CHUNK_SIZE = 20;
-    protected int numOfMoves = 0;
+    static private final int CHUNK_SIZE = 20;
+    static protected int numOfMoves = 0;
 
     //static int previousState=0, currentState=0;
-    protected State previousState = new State();
-    protected State currentState = new State();
-    protected Action.enumActions previousAction = Action.enumActions.avoid;
-    protected Action.enumActions currentAction = Action.enumActions.avoid;
+    static protected State previousState = new State();
+    static protected State currentState = new State();
+    static protected Action.enumActions previousAction = Action.enumActions.avoid;
+    static protected Action.enumActions currentAction = Action.enumActions.avoid;
 
     protected byte moveDirection = 1;
-    protected int totalNumRounds = 0;
-    protected int totalNumWins = 0;
+    static protected int totalNumRounds = 0;
+    static protected int totalNumWins = 0;
 
-    static private StateActionLookupTableD4 q;
+    static private final StateActionLookupTableD4 q = new StateActionLookupTableD4(
+            State.NUM_ENERGY,
+            State.NUM_DISTANCE,
+            State.NUM_GUN_HEAT,
+            Action.NUM_ACTIONS);
 
     public void run() {
-        initializeLog();
-
-        try {
-            initializeQLearning();
-        } catch (IOException e) {
-            e.printStackTrace();
-        }
+        initialize();
 
         //Customize our robot
         setAdjustGunForRobotTurn(true);
@@ -76,21 +72,13 @@ public class QFunctionRobot extends AdvancedRobot {
         turnRadarRightRadians(Double.POSITIVE_INFINITY);
     }
 
-    protected void initializeLog() {
+    protected void initialize() {
         // Create log file
         if (log == null) {
             log = new LogFile(getDataFile(logFileName));
             log.printHyperParameters(this.metadata());
         }
 
-    }
-
-    protected void initializeQLearning() throws IOException {
-        q = new StateActionLookupTableD4(
-                State.NUM_ENERGY,
-                State.NUM_DISTANCE,
-                State.NUM_GUN_HEAT,
-                Action.NUM_ACTIONS);
     }
 
     /**
@@ -213,6 +201,8 @@ public class QFunctionRobot extends AdvancedRobot {
     public void onRoundEnded(RoundEndedEvent event) {
         super.onRoundEnded(event);
         totalNumRounds++;
+        //log.stream.println("total number rounds " + totalNumRounds);
+
         if (((totalNumRounds % CHUNK_SIZE == 0) && totalNumRounds != 0)) {
             trackResults();
         }
@@ -260,8 +250,8 @@ public class QFunctionRobot extends AdvancedRobot {
 
     /**
      * Using Lookup table to pick the best action for the input state.
-     * @param state
-     * @return
+     * @param state the inspecting state
+     * @return the best value corresponding to the inspecting state
      */
     protected Pair<Action.enumActions, Double> getBestAction(State state)
     {
@@ -364,7 +354,7 @@ public class QFunctionRobot extends AdvancedRobot {
 
     /**
      * update Q value by either on or off policy
-     * @param bestActionValue
+     * @param bestActionValue the best action
      */
     protected void performValueFunction(Pair<Action.enumActions, Double> bestActionValue) {
         if (useQLearning){
