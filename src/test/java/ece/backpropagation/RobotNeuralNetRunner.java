@@ -23,7 +23,7 @@
         private int train(boolean showErrorAtEachEpoch, boolean showHiddenWeightsAtEachEpoch, boolean showErrorAtConverge) throws IOException {
             double target = 0.00005;
 
-            NeuralNetInterface nn = new StateActionNeuralNet();
+            NeuralNetInterface nn = new StateActionNeuralNet(true);
 
             nn.initializeWeights();
             nn.initializeBias(HIDDEN_BIAS, OUTPUT_BIAS);

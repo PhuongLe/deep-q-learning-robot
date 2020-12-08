@@ -54,6 +54,20 @@ public class State {
         this.bearing = bearing;
     }
 
+    public String StateActionValueString(int action){
+        return "{" + this.energy.name() + ", " + this.distance.name() + ", " + this.gunHeat.name()
+                + ", " +Action.enumActions.values()[action].name() + "}";
+    }
+
+    public String StateActionInputVectorString(int action){
+        double[] bipolarValue = StateActionInputVector(action);
+        String result = "{";
+        for (double value: bipolarValue){
+            result += value + ", ";
+        }
+        return result + "}";
+    }
+
     public double[] StateActionValue(int action){
         return new double[]{this.energy.ordinal(), this.distance.ordinal(), this.gunHeat.ordinal(), action};
     }

@@ -55,7 +55,7 @@ public class StateActionLookupTableD4 implements LUTInterface {
         double min_q_value = Double.MAX_VALUE;
         double max_q_value = -Double.MAX_VALUE;
 
-        double visiting_q_value = 0.0f;
+        double visiting_q_value;
         for (int a = 0; a <numDim1Levels; a++) {
             for (int b = 0; b <numDim2Levels; b++) {
                 for (int c = 0; c < numDim3Levels; c++) {

@@ -30,8 +30,8 @@ public class StateActionNeuralNet extends XorNeuralNet {
             State.NUM_GUN_HEAT,
             Action.NUM_ACTIONS);
 
-    public StateActionNeuralNet(){
-        super(NUM_INPUTS, NUM_HIDDEN, LEARNING_RATE, MOMENTUM, ARG_A, ARG_B, USE_BIPOLAR);
+    public StateActionNeuralNet(boolean initializeTrainingSet){
+        super(NUM_INPUTS, NUM_HIDDEN, LEARNING_RATE, MOMENTUM, ARG_A, ARG_B, USE_BIPOLAR, initializeTrainingSet);
     }
 
     @Override
@@ -72,18 +72,25 @@ public class StateActionNeuralNet extends XorNeuralNet {
 
     public static double[] MapStateActionToInputVector(State.enumEnergy energy, State.enumDistance distance, State.enumGunHeat gunHeat, Action.enumActions action){
         double[] results = new double[NUM_INPUTS];
+
         double[] energyBipolar = mapEnergyToBipolarFormat(energy);
         for (int i = 0; i< energyBipolar.length; i++){
             results[i] = energyBipolar[i];
         }
-        for (int i = 0; i< energyBipolar.length; i++){
-            results[i + State.NUM_ENERGY] = energyBipolar[i];
+
+        double[] distanceBipolar = mapDistanceToBipolarFormat(distance);
+        for (int i = 0; i< distanceBipolar.length; i++){
+            results[i + State.NUM_ENERGY] = distanceBipolar[i];
         }
-        for (int i = 0; i< energyBipolar.length; i++){
-            results[i + State.NUM_ENERGY + State.NUM_DISTANCE] = energyBipolar[i];
+
+        double[] gunHeatBipolar = mapGunHeatToBipolarFormat(gunHeat);
+        for (int i = 0; i< gunHeatBipolar.length; i++){
+            results[i + State.NUM_ENERGY + State.NUM_DISTANCE] = gunHeatBipolar[i];
         }
-        for (int i = 0; i< energyBipolar.length; i++){
-            results[i + State.NUM_ENERGY + State.NUM_DISTANCE + State.NUM_GUN_HEAT] = energyBipolar[i];
+
+        double[] actionBipolar = mapActionToBipolarFormat(action);
+        for (int i = 0; i< actionBipolar.length; i++){
+            results[i + State.NUM_ENERGY + State.NUM_DISTANCE + State.NUM_GUN_HEAT] = actionBipolar[i];
         }
         return results;
     }
@@ -168,12 +175,12 @@ public class StateActionNeuralNet extends XorNeuralNet {
         double[] result = new double[State.NUM_GUN_HEAT];
         switch (gunHeat){
             case low:
-                result[6] = +1;
-                result[7] = -1;
+                result[0] = +1;
+                result[1] = -1;
                 break;
             case high:
-                result[6] = -1;
-                result[7] = 1;
+                result[0] = -1;
+                result[1] = 1;
                 break;
             default:
                 throw new IllegalStateException("Unexpected value: " + gunHeat);
@@ -185,28 +192,28 @@ public class StateActionNeuralNet extends XorNeuralNet {
         double[] result = new double[Action.NUM_ACTIONS];
         switch (action){
             case attack:
-                result[8] = +1;
-                result[9] = -1;
-                result[10] = -1;
-                result[11] = -1;
+                result[0] = +1;
+                result[1] = -1;
+                result[2] = -1;
+                result[3] = -1;
                 break;
             case avoid:
-                result[8] = -1;
-                result[9] = +1;
-                result[10] = -1;
-                result[11] = -1;
+                result[0] = -1;
+                result[1] = +1;
+                result[2] = -1;
+                result[3] = -1;
                 break;
             case runaway:
-                result[8] = -1;
-                result[9] = -1;
-                result[10] = +1;
-                result[11] = -1;
+                result[0] = -1;
+                result[1] = -1;
+                result[2] = +1;
+                result[3] = -1;
                 break;
             case fire:
-                result[8] = -1;
-                result[9] = -1;
-                result[10] = -1;
-                result[11] = +1;
+                result[0] = -1;
+                result[1] = -1;
+                result[2] = -1;
+                result[3] = +1;
                 break;
             default:
                 throw new IllegalStateException("Unexpected value: " + action);

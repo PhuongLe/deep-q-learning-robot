@@ -29,7 +29,7 @@ public class QLearningRobot extends AdvancedRobot {
     protected static double GAMMA = 0.7;
     protected static double ALPHA = 0.5;
     protected static double EPSILON_INITIAL = 0.3;
-    protected static int STOP_RANDOM_ACTION_ROUND = 1000;
+    protected static int STOP_RANDOM_ACTION_ROUND = 2000;
     protected double epsilon = EPSILON_INITIAL;
 
     protected double reward = 0.0;
