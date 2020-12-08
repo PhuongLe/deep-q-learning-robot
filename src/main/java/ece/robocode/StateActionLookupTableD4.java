@@ -177,14 +177,20 @@ public class StateActionLookupTableD4 implements LUTInterface {
                         String[] tokens = line.split(",");
                         double q = Double.parseDouble(tokens[4]);
                         int v = Integer.parseInt(tokens[5]);
-                        lookupTable[a][b][c][d] = q;
                         visits[a][b][c][d] = v;
-
+                        if (v == 0) {
+                            //there are a few state actions that are not visited which will have a magnified value compared to visited state action
+                            //we would suggest to eliminate these values
+                            lookupTable[a][b][c][d] = -1;
+                        }
+                        else
+                        {
+                            lookupTable[a][b][c][d] = q;
+                        }
                     }
                 }
             }
         }
         inputReader.close();
     }
-
 }
