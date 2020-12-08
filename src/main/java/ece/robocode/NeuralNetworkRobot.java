@@ -94,10 +94,11 @@ public class NeuralNetworkRobot extends QLearningRobot {
 
         //track the difference between output Q value with the prior Q value
         logged_qChange = logged_priorQ - logged_precedingPreviousQValue;
+        logged_precedingPreviousQValue = logged_priorQ;
         logQChangesFile.stream.printf("%2.10f, %2.10f\n", logged_qChange, logged_precedingPreviousQValue);
 
         //track the loss between output Q value with the target Q value of the previous state action
-        logLossFile.stream.printf("%2.10f\n", logged_loss, logged_maxQ);
+        logLossFile.stream.printf("%2.10f, %2.10f\n", logged_loss, logged_maxQ);
     }
 
     /**

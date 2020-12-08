@@ -1,9 +1,6 @@
 package ece.backpropagation;
 
-import ece.common.Action;
-import ece.common.ArrayHelper;
-import ece.common.Experience;
-import ece.common.State;
+import ece.common.*;
 import ece.robocode.StateActionLookupTableD4;
 
 import java.io.*;
@@ -24,7 +21,7 @@ public class StateActionNeuralNet extends XorNeuralNet {
     public static double ARG_B = 1;
     public static boolean USE_BIPOLAR = true;
 
-    static private final StateActionLookupTableD4 q = new StateActionLookupTableD4(
+    static private final LUTInterface q = new StateActionLookupTableD4(
             State.NUM_ENERGY,
             State.NUM_DISTANCE,
             State.NUM_GUN_HEAT,
