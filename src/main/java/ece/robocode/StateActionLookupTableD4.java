@@ -37,8 +37,9 @@ public class StateActionLookupTableD4 implements LUTInterface {
             for (int b = 0; b <numDim2Levels; b++) {
                 for (int c = 0; c < numDim3Levels; c++) {
                     for (int d = 0; d <numDim4Levels; d++) {
-                        lookupTable[a][b][c][d] = Math.random();
-                            visits[a][b][c][d] = 0;
+                        //lookupTable[a][b][c][d] = Math.random();
+                        lookupTable[a][b][c][d] = (Math.random() - 0.5) * 5000;
+                        visits[a][b][c][d] = 0;
                     }
                 }
             }

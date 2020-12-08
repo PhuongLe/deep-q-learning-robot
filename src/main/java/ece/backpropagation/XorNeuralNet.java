@@ -110,14 +110,12 @@ public class XorNeuralNet implements NeuralNetInterface {
             for (int j=0; j < numHiddenNeurons;j++){
                 this.hiddenWeight[i][j] = targetHiddentWeights[i][j];
             }
-            this.hiddenBias = targetNetwork.getHiddenBias();
         }
 
         double[] targetOutputWeights = targetNetwork.getOutputWeights();
         for (int i=0; i<numHiddenNeurons; i++){
             this.outputWeight[i] = targetOutputWeights[i];
         }
-        this.outputBias = targetNetwork.getOutputBias();
     }
 
     /**
