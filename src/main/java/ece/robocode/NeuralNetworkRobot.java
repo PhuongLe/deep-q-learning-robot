@@ -15,8 +15,8 @@ import java.util.Random;
  *      4 actions: attack, avoid, runaway, fire
  */
 public class NeuralNetworkRobot extends QLearningRobot {
-    static private final NeuralNetInterface targetNetwork = new StateActionNeuralNet();
-    static private final NeuralNetInterface policyNetwork = new StateActionNeuralNet();
+    static private final NeuralNetInterface targetNetwork = new StateActionNeuralNet(false);
+    static private final NeuralNetInterface policyNetwork = new StateActionNeuralNet(false);
     static public Experience[] experiences = new Experience[]{};
     static private final int NUM_TIMES_TO_SYNC_VALUE_FUNCTIONS = 100;
     static private final int REPLAY_MEMORY_SIZE = 1; // set it as 1 to experiment one back propagation
@@ -35,11 +35,13 @@ public class NeuralNetworkRobot extends QLearningRobot {
     static double precedingPreviousQValue;
     static double qChange;
     static double loss;
+    static double maxQ;
 
     static StringBuilder debugLog = new StringBuilder();
 
     private static final Random random = new Random();
 
+    private static boolean enableDebug = false;
 
     @Override
     protected Pair<String, Double>[] metadata() {
@@ -63,7 +65,9 @@ public class NeuralNetworkRobot extends QLearningRobot {
             logLossFile.printHyperParameters(this.metadata());
 
             debugLogFile = new LogFile(getDataFile(debugLogFileName));
-            debugLogFile.printHyperParameters(this.metadata());
+            if (enableDebug) {
+                debugLogFile.printHyperParameters(this.metadata());
+            }
 
             try {
                 targetNetwork.load(stateActionNeuralNetWeightsFileName);
@@ -76,7 +80,9 @@ public class NeuralNetworkRobot extends QLearningRobot {
 
     @Override
     public void onBattleEnded(BattleEndedEvent event) {
-        debugLogFile.stream.print(debugLog.toString());
+        if (enableDebug) {
+            debugLogFile.stream.print(debugLog.toString());
+        }
     }
 
     @Override
@@ -87,7 +93,7 @@ public class NeuralNetworkRobot extends QLearningRobot {
         logQChangesFile.stream.printf("%2.10f, %2.10f\n", qChange, precedingPreviousQValue);
 
         //track the loss between output Q value with the target Q value of the previous state action
-        logLossFile.stream.printf("%2.10f\n", loss);
+        logLossFile.stream.printf("%2.10f\n", loss, maxQ);
     }
 
     /**
@@ -97,9 +103,13 @@ public class NeuralNetworkRobot extends QLearningRobot {
     protected void prePerformingValueFunctions(){
         //save experience to replay memory
         if (experiences.length >= REPLAY_MEMORY_SIZE){
-            ArrayHelper.pop(experiences);
+            if (experiences.length == 1){
+                experiences = new Experience[]{};
+            }else {
+                experiences = ArrayHelper.pop(experiences);
+            }
         }
-        ArrayHelper.push(experiences, new Experience(previousState, previousAction, reward, currentState));
+        experiences = ArrayHelper.push(experiences, new Experience(previousState, previousAction, reward, currentState));
     }
 
     @Override
@@ -107,6 +117,7 @@ public class NeuralNetworkRobot extends QLearningRobot {
         if (numOfMoves % NUM_TIMES_TO_SYNC_VALUE_FUNCTIONS == 0){
             targetNetwork.cloneWeights(policyNetwork);
         }
+        writeDebug("executed action = " + currentAction.name());
     }
 
     /**
@@ -144,23 +155,26 @@ public class NeuralNetworkRobot extends QLearningRobot {
 
         //Sample random batch from replay memory. In this project, it is all reply_memory_size
         for (int i = 0; i < REPLAY_MEMORY_RANDOM_MINI_BATCH_SIZE; i++){
-            updateWeights(i, randomBatchIndexes);
+            updateWeights(i, randomBatchIndexes, bestActionValue);
         }
     }
 
-    private void updateWeights(int i, int[] randomBatchIndexes){
+    private void updateWeights(int i, int[] randomBatchIndexes, Pair<Action.enumActions, Double> bestActionValue){
         int experienceIndex = randomBatchIndexes[i];
         double[] previousStateAction = experiences[experienceIndex].previousState.StateActionInputVector(experiences[experienceIndex].previousAction.ordinal());
 
         double priorQ = policyNetwork.outputFor(previousStateAction);
-        double maxQ = this.getBestAction(experiences[experienceIndex].currentState).getValue();
+        if (i != 0 || (i == 0 && bestActionValue == null)) {
+            maxQ = this.getBestAction(experiences[experienceIndex].currentState).getValue();
+        }
 
         loss = ALPHA*(reward + GAMMA*maxQ - priorQ);
         policyNetwork.backwardPropagation(previousStateAction, loss);
 
-        debugLog.append("priorQ = " + priorQ + "\n");
-        debugLog.append("maxQ = " + maxQ + "\n");
-        debugLog.append("loss = " + loss + "\n");
+        writeDebug("priorQ = " + priorQ);
+        writeDebug("maxQ = " + maxQ);
+        writeDebug("loss = " + loss);
+        writeDebug(policyNetwork.printHiddenWeights());
 
         if (i == 0){
             //track qChange and loss for monitoring robot and neural network performance
@@ -177,12 +191,18 @@ public class NeuralNetworkRobot extends QLearningRobot {
     @Override
     protected Pair<Action.enumActions, Double> getBestAction(State state)
     {
+        writeDebug("getting best action for");
+
         int action = 0;
         double bestQ = -Double.MAX_VALUE;
         for(int i = 0; i< Action.NUM_ACTIONS; i++)
         {
             double[] currentStateAction = state.StateActionInputVector(i);
             double computedQValue =  targetNetwork.outputFor(currentStateAction);
+            writeDebug("stateAction = " + state.StateActionValueString(i)
+                    + ". StateActionBipolar = " + state.StateActionInputVectorString(i)
+                    + ". ComputedQValue = " + computedQValue);
+
             if( computedQValue > bestQ)
             {
                 bestQ = computedQValue;
@@ -190,5 +210,12 @@ public class NeuralNetworkRobot extends QLearningRobot {
             }
         }
         return new Pair<> (Action.enumActions.values()[action], bestQ);
+    }
+
+    private void writeDebug(String message){
+        if (!enableDebug){
+            return;
+        }
+        debugLog.append(message + "\n");
     }
 }

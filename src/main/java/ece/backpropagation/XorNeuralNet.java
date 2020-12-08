@@ -63,7 +63,8 @@ public class XorNeuralNet implements NeuralNetInterface {
             double argMomentumTerm,
             double argA,
             double argB,
-            boolean argUseBipolarHiddenNeurons){
+            boolean argUseBipolarHiddenNeurons,
+            boolean initializeTrainingSet){
         this.numInputs = argNumInputs;
         this.numHiddenNeurons = argNumHidden;
         this.learningRate = argLearningRate;
@@ -86,7 +87,20 @@ public class XorNeuralNet implements NeuralNetInterface {
         outputBias = 1.0;
 
         this.activationFunction = new SigmoidActivation(this.argumentA, this.argumentB);
-        this.initializeTrainingSet();
+        if (initializeTrainingSet) {
+            this.initializeTrainingSet();
+        }
+    }
+
+    public XorNeuralNet(
+            int argNumInputs,
+            int argNumHidden,
+            double argLearningRate,
+            double argMomentumTerm,
+            double argA,
+            double argB,
+            boolean argUseBipolarHiddenNeurons){
+        this(argNumInputs, argNumHidden, argLearningRate, argMomentumTerm, argA, argB, argUseBipolarHiddenNeurons, true);
     }
 
     @Override

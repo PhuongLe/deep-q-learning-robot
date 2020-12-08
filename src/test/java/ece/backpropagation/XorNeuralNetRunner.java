@@ -28,7 +28,8 @@
                     argMomentum,                    // alpha
                     argumentA,                      // lower bound of sigmoid on output neuron
                     argumentB,                      // upper bound of sigmoid on output neuron
-                    argUseBipolarHiddenNeurons);
+                    argUseBipolarHiddenNeurons,
+                    true);
 
             nn.initializeWeights();
             //nn.initializeBias(hiddenBias, outputBias);
