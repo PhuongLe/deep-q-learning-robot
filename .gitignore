@@ -25,5 +25,7 @@ hs_err_pid*
 /*.ini
 /.idea/*.ini
 *.ini
-.iml
-.lst
+*.iml
+*.lst
+config/*
+robots/*
