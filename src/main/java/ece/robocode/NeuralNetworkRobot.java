@@ -178,24 +178,24 @@ public class NeuralNetworkRobot extends QLearningRobot {
         int experienceIndex = randomBatchIndexes[i];
         double[] previousStateAction = experiences[experienceIndex].previousState.StateActionInputVector(experiences[experienceIndex].previousAction.ordinal());
 
-        logged_priorQ = policyNetwork.outputFor(previousStateAction);
+        double priorQ = policyNetwork.outputFor(previousStateAction);
         if (i != 0 || (i == 0 && bestActionValue == null)) {
             logged_maxQ = this.getBestAction(experiences[experienceIndex].currentState).getValue();
         }
 
-        logged_loss = ALPHA*(reward + GAMMA*logged_maxQ - logged_priorQ);
+        logged_loss = ALPHA*(reward + GAMMA*logged_maxQ - priorQ);
         policyNetwork.backwardPropagation(previousStateAction, logged_loss);
 
-        writeDebug("priorQ = " + logged_priorQ);
+
+        writeDebug("priorQ = " + priorQ);
         writeDebug("maxQ = " + logged_maxQ);
         writeDebug("loss = " + logged_loss);
         writeDebug(policyNetwork.printHiddenWeights());
 
-//        if (i == 0){
-//            //track qChange and loss for monitoring robot and neural network performance
-//            qChange = priorQ - precedingPreviousQValue;
-//            precedingPreviousQValue = priorQ;
-//        }
+        if (i == 0){
+            //track qChange and loss for monitoring robot and neural network performance
+            logged_priorQ = priorQ;
+        }
     }
 
     /**
