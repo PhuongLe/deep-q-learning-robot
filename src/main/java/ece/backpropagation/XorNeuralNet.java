@@ -404,20 +404,20 @@ public class XorNeuralNet implements NeuralNetInterface {
 
         output.println(numInputs);
         output.println(numHiddenNeurons);
+        output.println(hiddenBias);
+        output.println(outputBias); //save bias weight for output neuron too
 
         //First save the weights from the input to hidden neurons (one line per weight)
         for (int i=0; i < numInputs; i++){
             for (int j=0; j < numHiddenNeurons; j++){
                 output.println(hiddenWeight[i][j]);
             }
-            output.println(hiddenBias);
         }
 
         //Now save the weights from hidden to the output neuron
         for (int i=0; i < numHiddenNeurons; i++){
             output.println(outputWeight[i]);
         }
-        output.println(outputBias); //save bias weight for output neuron too
 
         output.close();
         writer.close();
@@ -450,6 +450,8 @@ public class XorNeuralNet implements NeuralNetInterface {
             inputReader.close();
             throw new IOException();
         }
+        hiddenBias = Double.valueOf(inputReader.readLine());
+        outputBias = Double.valueOf(inputReader.readLine());
 
         // Load the weights from input layer to hidden neurons (one line per weight)
         // Loads the weights for the bias as well
@@ -457,7 +459,6 @@ public class XorNeuralNet implements NeuralNetInterface {
             for (int j = 0; j < numHiddenNeurons; j++){
                 hiddenWeight[i][j] = Double.valueOf(inputReader.readLine());
             }
-            hiddenBias = Double.valueOf(inputReader.readLine());
         }
 
         // Load the weights from the hidden layer to the output
@@ -466,7 +467,6 @@ public class XorNeuralNet implements NeuralNetInterface {
             outputWeight[i] = Double.valueOf(inputReader.readLine());
         }
 
-        outputBias = Double.valueOf(inputReader.readLine());
 
         // Close file
         inputFile.close();
