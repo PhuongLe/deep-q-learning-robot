@@ -2,7 +2,6 @@ package ece.backpropagation;
 
 import ece.common.Activation;
 import ece.common.NeuralNetInterface;
-import robocode.RobocodeFileOutputStream;
 
 import java.io.*;
 import java.text.SimpleDateFormat;
@@ -331,7 +330,7 @@ public class XorNeuralNet implements NeuralNetInterface {
     }
 
     @Override
-    public String printHiddenWeights() {
+    public String printAllWeights() {
         StringBuilder str = new StringBuilder();
         str.append("\n");
         str.append("WeightToOutput = ");
@@ -503,7 +502,7 @@ public class XorNeuralNet implements NeuralNetInterface {
         int epochsToReachTarget = 0;
         boolean targetReached = false;
 
-        String initializedWeights = this.printHiddenWeights();
+        String initializedWeights = this.printAllWeights();
 
         int epochCnt = 0;
         do {
@@ -514,7 +513,7 @@ public class XorNeuralNet implements NeuralNetInterface {
             }
             errors.add(error);
             if (showErrorAtEachEpoch) System.out.println("--+ Error at epoch " + epochCnt + " is " + error);
-            if (showHiddenWeightsAtEachEpoch) System.out.println("--+ Hidden weights at epoch " + epochCnt + " " + this.printHiddenWeights());
+            if (showHiddenWeightsAtEachEpoch) System.out.println("--+ Hidden weights at epoch " + epochCnt + " " + this.printAllWeights());
 
             if (error < target){
                 if (showErrorAtConverge) {

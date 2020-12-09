@@ -127,8 +127,9 @@ public class NeuralNetworkRobot extends QLearningRobot {
             return;
         }
 
-        if (numOfMoves % NUM_TIMES_TO_SYNC_VALUE_FUNCTIONS == 0){
+        if (totalNumRounds % NUM_TIMES_TO_SYNC_VALUE_FUNCTIONS == 0){
             targetNetwork.cloneWeights(policyNetwork);
+            writeDebug(policyNetwork.printAllWeights());
         }
         writeDebug("executed action = " + currentAction.name());
     }
@@ -190,7 +191,7 @@ public class NeuralNetworkRobot extends QLearningRobot {
         writeDebug("priorQ = " + priorQ);
         writeDebug("maxQ = " + logged_maxQ);
         writeDebug("loss = " + logged_loss);
-        writeDebug(policyNetwork.printHiddenWeights());
+        writeDebug(policyNetwork.printAllWeights());
 
         if (i == 0){
             //track qChange and loss for monitoring robot and neural network performance

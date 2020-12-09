@@ -66,7 +66,7 @@ public interface NeuralNetInterface extends CommonInterface {
      */
     void initializeBias(double argHiddenBias, double argOutputBias);
 
-    String printHiddenWeights();
+    String printAllWeights();
 
     double[] getLastWeightChangeToOutput();
 
