@@ -13,8 +13,8 @@ public class StateActionNeuralNet extends XorNeuralNet {
 
     public static int NUM_TRAINING_SET = State.NUM_ENERGY * State.NUM_DISTANCE * State.NUM_GUN_HEAT * Action.NUM_ACTIONS;
     public static int NUM_INPUTS = State.NUM_DISTANCE + State.NUM_ENERGY + State.NUM_GUN_HEAT + Action.NUM_ACTIONS;
-    public static int NUM_HIDDEN = 10;
-    public static double LEARNING_RATE = 0.2;
+    public static int NUM_HIDDEN = 12;
+    public static double LEARNING_RATE = 0.01;
     public static double MOMENTUM = 0.9;
 
     public static double ARG_A = -1;
@@ -50,6 +50,10 @@ public class StateActionNeuralNet extends XorNeuralNet {
             for (int b = 0; b <State.NUM_DISTANCE; b++) {
                 for (int c = 0; c < State.NUM_GUN_HEAT; c++) {
                     for (int d = 0; d <Action.NUM_ACTIONS; d++) {
+                        qValue = q.outputFor(new double[]{a,b,c,d});
+                        if (qValue == Double.MAX_VALUE){
+                            continue;
+                        }
                         State.enumEnergy energy = State.enumEnergy.values()[a];
                         addEnergyBipolarFormatToDataSet(energy, trainingSetIndex);
                         State.enumDistance distance = State.enumDistance.values()[b];
@@ -59,12 +63,13 @@ public class StateActionNeuralNet extends XorNeuralNet {
                         Action.enumActions action = Action.enumActions.values()[d];
                         addActionBipolarFormatToDataSet(action, trainingSetIndex);
 
-                        qValue = q.outputFor(new double[]{a,b,c,d});
                         actualOutput[trainingSetIndex] = qValue/scaleSize;
+                        trainingSetIndex++;
                     }
                 }
             }
         }
+        NUM_TRAINING_SET = trainingSetIndex;
     }
 
     public static double[] MapStateActionToInputVector(State.enumEnergy energy, State.enumDistance distance, State.enumGunHeat gunHeat, Action.enumActions action){

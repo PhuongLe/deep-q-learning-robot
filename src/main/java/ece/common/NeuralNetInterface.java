@@ -13,7 +13,7 @@ public interface NeuralNetInterface extends CommonInterface {
     int MAX_EPOCH = 20000;
     int DID_NOT_CONVERGE = -1;
 
-    void cloneWeights(NeuralNetInterface targetNetwork) throws IOException;
+    void cloneWeights(NeuralNetInterface targetNetwork);
 
     void backwardPropagation(double[] inputVector, double singleError);
     /**

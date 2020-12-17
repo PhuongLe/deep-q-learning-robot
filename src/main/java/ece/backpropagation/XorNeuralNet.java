@@ -103,7 +103,7 @@ public class XorNeuralNet implements NeuralNetInterface {
     }
 
     @Override
-    public void cloneWeights(NeuralNetInterface targetNetwork) throws IOException {
+    public void cloneWeights(NeuralNetInterface targetNetwork) {
         double[][] targetHiddentWeights = targetNetwork.getHiddenWeight();
         for (int i=0; i<numInputs; i++){
             for (int j=0; j < numHiddenNeurons;j++){

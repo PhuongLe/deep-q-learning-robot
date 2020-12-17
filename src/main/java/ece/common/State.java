@@ -18,16 +18,25 @@ public class State {
     public enumGunHeat gunHeat;
     public double bearing = 0;
 
-    public State()
+    public State(enumEnergy energy,
+                 enumDistance distance,
+                 enumGunHeat gunHeat)
     {
-        initialize();
+        initialize(energy, distance, gunHeat);
     }
 
-    void initialize()
+    public State()
     {
-        energy=enumEnergy.high;
-        distance=enumDistance.near;
-        gunHeat = enumGunHeat.low;
+        initialize(enumEnergy.high, enumDistance.near, enumGunHeat.low);
+    }
+
+    void initialize(enumEnergy agr_energy,
+                    enumDistance agr_distance,
+                    enumGunHeat agr_gunHeat)
+    {
+        energy = agr_energy;
+        distance = agr_distance;
+        gunHeat = agr_gunHeat;
     }
 
     public void update(enumEnergy energy,
@@ -80,6 +89,7 @@ public class State {
         return (!this.energy.equals(previousState.energy)
                 || !this.distance.equals(previousState.distance)
                 || !this.gunHeat.equals(previousState.gunHeat));
+                //|| (this.bearing != previousState.bearing));
     }
 
 

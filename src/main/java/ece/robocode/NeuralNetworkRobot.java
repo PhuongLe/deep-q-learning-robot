@@ -7,6 +7,8 @@ import robocode.BattleEndedEvent;
 
 import java.io.File;
 import java.io.IOException;
+import java.util.ArrayList;
+import java.util.List;
 import java.util.Random;
 
 /**
@@ -19,25 +21,39 @@ public class NeuralNetworkRobot extends QLearningRobot {
     static private final NeuralNetInterface policyNetwork = new StateActionNeuralNet(false);
     static public Experience[] experiences = new Experience[]{};
     static private final int NUM_TIMES_TO_SYNC_VALUE_FUNCTIONS = 100;
-    static private final int REPLAY_MEMORY_SIZE = 1; // set it as 1 to experiment one back propagation
-    static private final int REPLAY_MEMORY_RANDOM_MINI_BATCH_SIZE = 1; //it must be less than REPLAY_MEMORY_SIZE
-    static private final int NUM_OBSERVATION = 2; //NUM_OBSERVATION must be greater than REPLAY_MEMORY_SIZE
-    static private final int NUM_STOP_ONLINE_TRAINING = 2000;
+    static private final int REPLAY_MEMORY_SIZE = 100; // set it as 1 to experiment one back propagation
+    static private final int REPLAY_MEMORY_RANDOM_MINI_BATCH_SIZE = 50; //it must be less than REPLAY_MEMORY_SIZE
+    static private final int NUM_OBSERVATION = 0; //NUM_OBSERVATION must be greater than REPLAY_MEMORY_SIZE
+    static private final int NUM_STOP_ONLINE_TRAINING = 20000;
 
     static String stateActionNeuralNetWeightsFileName = StateActionNeuralNet.baseFolder + "nn_weights.dat";
 
-    static LogFile logQChangesFile = null;
-    static String logQChangesFileName = baseFolder + "-robocode-q-changes.log";
+    static State plottedState1 = new State(State.enumEnergy.high, State.enumDistance.far, State.enumGunHeat.high);
+    static State plottedState2 = new State(State.enumEnergy.high, State.enumDistance.near, State.enumGunHeat.high){};
+    static State plottedState3 = new State(State.enumEnergy.medium, State.enumDistance.near, State.enumGunHeat.low){};
+    static Action.enumActions plottedAction1 = Action.enumActions.avoid;
+    static Action.enumActions plottedAction2 = Action.enumActions.fire;
+    static Action.enumActions plottedAction3 = Action.enumActions.runaway;
+    static double plotted_previousQValue1;
+    static double plotted_previousQValue2;
+    static double plotted_previousQValue3;
+    static double plotted_previousError1 = Double.MAX_VALUE;
+    static double plotted_previousError2 = Double.MAX_VALUE;
+    static double plotted_previousError3 = Double.MAX_VALUE;
+    static double plotted_totalErrors;
+    static double new_plotted_totalErrors;
+
+    static LogFile logQChangesFile1 = null;
+    static String logQChangesFileName1 = baseFolder + "-robocode-q-change1.log";
+    static LogFile logQChangesFile2 = null;
+    static String logQChangesFileName2 = baseFolder + "-robocode-q-change2.log";
+    static LogFile logQChangesFile3 = null;
+    static String logQChangesFileName3 = baseFolder + "-robocode-q-change3.log";
     static LogFile logLossFile = null;
     static String logLossFileName = baseFolder + "-robocode-loss.log";
     static LogFile debugLogFile = null;
     static String debugLogFileName = baseFolder + "-debug.log";
 
-    static double logged_precedingPreviousQValue;
-    static double logged_qChange;
-    static double logged_loss;
-    static double logged_maxQ;
-    static double logged_priorQ;
 
     static StringBuilder debugLog = new StringBuilder();
 
@@ -60,9 +76,15 @@ public class NeuralNetworkRobot extends QLearningRobot {
     @Override
     protected void initialize() {
         super.initialize();
-        if (logQChangesFile == null) {
-            logQChangesFile = new LogFile(getDataFile(logQChangesFileName));
-            logQChangesFile.printHyperParameters(this.metadata());
+        if (logLossFile == null) {
+            logQChangesFile1 = new LogFile(getDataFile(logQChangesFileName1));
+            logQChangesFile1.printHyperParameters(this.metadata());
+
+            logQChangesFile2 = new LogFile(getDataFile(logQChangesFileName2));
+            logQChangesFile2.printHyperParameters(this.metadata());
+
+            logQChangesFile3 = new LogFile(getDataFile(logQChangesFileName3));
+            logQChangesFile3.printHyperParameters(this.metadata());
 
             logLossFile = new LogFile(getDataFile(logLossFileName));
             logLossFile.printHyperParameters(this.metadata());
@@ -78,11 +100,14 @@ public class NeuralNetworkRobot extends QLearningRobot {
             } catch (IOException e) {
                 log.stream.printf("*** Could not initialize neural network from file");
             }
+
         }
     }
 
+
     @Override
     public void onBattleEnded(BattleEndedEvent event) {
+        super.onBattleEnded(event);
         if (enableDebug) {
             debugLogFile.stream.print(debugLog.toString());
         }
@@ -92,13 +117,8 @@ public class NeuralNetworkRobot extends QLearningRobot {
     protected void trackResults() {
         super.trackResults();
 
-        //track the difference between output Q value with the prior Q value
-        logged_qChange = logged_priorQ - logged_precedingPreviousQValue;
-        logged_precedingPreviousQValue = logged_priorQ;
-        logQChangesFile.stream.printf("%2.10f, %2.10f\n", logged_qChange, logged_precedingPreviousQValue);
-
         //track the loss between output Q value with the target Q value of the previous state action
-        logLossFile.stream.printf("%2.10f, %2.10f\n", logged_loss, logged_maxQ);
+        //logLossFile.stream.printf("%2.10f\n", logged_loss);
     }
 
     /**
@@ -106,6 +126,8 @@ public class NeuralNetworkRobot extends QLearningRobot {
      */
     @Override
     protected void prePerformingValueFunctions(){
+        super.prePerformingValueFunctions();
+
         if (totalNumRounds > NUM_STOP_ONLINE_TRAINING){
             return;
         }
@@ -122,7 +144,7 @@ public class NeuralNetworkRobot extends QLearningRobot {
     }
 
     @Override
-    protected void postPerformingValueFunctions() throws IOException {
+    protected void postPerformingValueFunctions() {
         if (totalNumRounds > NUM_STOP_ONLINE_TRAINING){
             return;
         }
@@ -136,24 +158,25 @@ public class NeuralNetworkRobot extends QLearningRobot {
 
     /**
      * Update neural network's weights by doing one back propagation step the loss or previous action state space
-     * @param bestActionValue best action value
      */
     @Override
     protected void performValueFunction(Pair<Action.enumActions, Double> bestActionValue) {
         // only train if done observing
         if (totalNumRounds > NUM_STOP_ONLINE_TRAINING || totalNumRounds < NUM_OBSERVATION){
-            double[] previousStateAction = previousState.StateActionInputVector(previousAction.ordinal());
-            logged_priorQ = policyNetwork.outputFor(previousStateAction);
+//            double[] previousStateAction = previousState.StateActionInputVector(previousAction.ordinal());
+//            logged_priorQ = policyNetwork.outputFor(previousStateAction);
             return;
         }
 
         //generate random mini batch state-actions from replay memory
         int[] randomBatchIndexes = new int[REPLAY_MEMORY_RANDOM_MINI_BATCH_SIZE];
-
+        for (int a = 0; a <REPLAY_MEMORY_RANDOM_MINI_BATCH_SIZE; a++) {
+            randomBatchIndexes[a] = -1;
+        }
         //for a shake of easy monitoring robot performance, always put the previous state-action on the random batch
-        randomBatchIndexes[0] = REPLAY_MEMORY_SIZE - 1;
+        //randomBatchIndexes[0] = REPLAY_MEMORY_SIZE - 1;
 
-        int miniCount = 1;
+        int miniCount = 0;
         while (miniCount < REPLAY_MEMORY_RANDOM_MINI_BATCH_SIZE){
             int randomIndex = random.nextInt(REPLAY_MEMORY_SIZE);
             boolean existed = false;
@@ -171,31 +194,93 @@ public class NeuralNetworkRobot extends QLearningRobot {
 
         //Sample random batch from replay memory. In this project, it is all reply_memory_size
         for (int i = 0; i < REPLAY_MEMORY_RANDOM_MINI_BATCH_SIZE; i++){
-            updateWeights(i, randomBatchIndexes, bestActionValue);
+            updateWeights(i, randomBatchIndexes);
         }
     }
 
-    private void updateWeights(int i, int[] randomBatchIndexes, Pair<Action.enumActions, Double> bestActionValue){
+    private void updateWeights(int i, int[] randomBatchIndexes){
         int experienceIndex = randomBatchIndexes[i];
         double[] previousStateAction = experiences[experienceIndex].previousState.StateActionInputVector(experiences[experienceIndex].previousAction.ordinal());
 
         double priorQ = policyNetwork.outputFor(previousStateAction);
-        if (i != 0 || (i == 0 && bestActionValue == null)) {
-            logged_maxQ = this.getBestAction(experiences[experienceIndex].currentState).getValue();
+
+        double maxQ = this.getBestAction(experiences[experienceIndex].currentState).getValue();
+
+        double loss = ALPHA*(experiences[experienceIndex].currentReward/137 + GAMMA*maxQ - priorQ);
+        policyNetwork.backwardPropagation(previousStateAction, loss);
+        //updatePlottedQChanges(priorQ);
+        updateErrorChanges(Math.abs(loss)/2);
+
+//        writeDebug("priorQ = " + priorQ);
+//        writeDebug("maxQ = " + maxQ);
+//        writeDebug("loss = " + loss);
+//        if (i == 0){
+//            //track qChange and loss for monitoring robot and neural network performance
+//            logged_priorQ = priorQ;
+//            logged_loss = loss;
+//            logged_maxQ = maxQ;
+//            writeDebug("logged_maxQ = " + logged_maxQ);
+//            writeDebug("logged_loss = " + logged_loss);
+//            //writeDebug(policyNetwork.printAllWeights());
+//        }
+    }
+    private void updateErrorChanges(double loss) {
+        if (!previousState.isNotEqual(plottedState1) && previousAction.equals(plottedAction1)){
+            if (plotted_previousError1 == Double.MAX_VALUE){
+                logLossFile.stream.printf("start plotting state-action space 1\n");
+                plotted_previousError1 = 0;
+            }
+
+            new_plotted_totalErrors = plotted_totalErrors - plotted_previousError1 + loss;
+            plotted_previousError1 = loss;
+        }
+        if (!previousState.isNotEqual(plottedState2) && previousAction.equals(plottedAction2)){
+            if (plotted_previousError2 == Double.MAX_VALUE){
+                logLossFile.stream.printf("start plotting state-action space 2\n");
+                plotted_previousError2 = 0;
+            }
+            new_plotted_totalErrors = plotted_totalErrors - plotted_previousError2 + loss;
+            plotted_previousError2 = loss;
+        }
+        if (!previousState.isNotEqual(plottedState3) && previousAction.equals(plottedAction3)){
+            if (plotted_previousError3 == Double.MAX_VALUE){
+                logLossFile.stream.printf("start plotting state-action space 3\n");
+                plotted_previousError3 = 0;
+            }
+            new_plotted_totalErrors = plotted_totalErrors - plotted_previousError3 + loss;
+            plotted_previousError3 = loss;
         }
 
-        logged_loss = ALPHA*(reward + GAMMA*logged_maxQ - priorQ);
-        policyNetwork.backwardPropagation(previousStateAction, logged_loss);
-
-
-        writeDebug("priorQ = " + priorQ);
-        writeDebug("maxQ = " + logged_maxQ);
-        writeDebug("loss = " + logged_loss);
-        writeDebug(policyNetwork.printAllWeights());
-
-        if (i == 0){
-            //track qChange and loss for monitoring robot and neural network performance
-            logged_priorQ = priorQ;
+        if ((totalNumRounds % 20 == 0 && totalNumRounds >0) && (new_plotted_totalErrors != plotted_totalErrors)){
+            logLossFile.stream.printf("%2.10f\n", new_plotted_totalErrors);
+        }
+        plotted_totalErrors = new_plotted_totalErrors;
+    }
+    private void updatePlottedQChanges(double priorQ) {
+        if (!previousState.isNotEqual(plottedState1) && previousAction.equals(plottedAction1)){
+            double change = Math.abs(priorQ - plotted_previousQValue1);
+            //ArrayHelper.push(plotted_qChange1, change);
+            if (((totalNumRounds % 20 == 0) && totalNumRounds != 0)) {
+                logQChangesFile1.stream.printf("%2.10f\n", change);
+            }
+            plotted_previousQValue1 = priorQ;
+            return;
+        }
+        if (!previousState.isNotEqual(plottedState2) && previousAction.equals(plottedAction2)){
+            double change = Math.abs(priorQ - plotted_previousQValue2);
+            if (((totalNumRounds % 20 == 0) && totalNumRounds != 0)) {
+                logQChangesFile2.stream.printf("%2.10f\n", change);
+            }
+            plotted_previousQValue2 = priorQ;
+            return;
+        }
+        if (!previousState.isNotEqual(plottedState3) && previousAction.equals(plottedAction3)){
+            double change = Math.abs(priorQ - plotted_previousQValue3);
+            if (((totalNumRounds % 20 == 0) && totalNumRounds != 0)) {
+                logQChangesFile3.stream.printf("%2.10f\n", change);
+            }
+            plotted_previousQValue3 = priorQ;
+            return;
         }
     }
 
@@ -216,9 +301,9 @@ public class NeuralNetworkRobot extends QLearningRobot {
         {
             double[] currentStateAction = state.StateActionInputVector(i);
             double computedQValue =  targetNetwork.outputFor(currentStateAction);
-            writeDebug("stateAction = " + state.StateActionValueString(i)
-                    + ". StateActionBipolar = " + state.StateActionInputVectorString(i)
-                    + ". ComputedQValue = " + computedQValue);
+//            writeDebug("stateAction = " + state.StateActionValueString(i)
+//                    + ". StateActionBipolar = " + state.StateActionInputVectorString(i)
+//                    + ". ComputedQValue = " + computedQValue);
 
             if( computedQValue > bestQ)
             {
