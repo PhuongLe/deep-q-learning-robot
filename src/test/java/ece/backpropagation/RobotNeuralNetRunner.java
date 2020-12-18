@@ -21,7 +21,7 @@
         private static int bestEpochs = Integer.MAX_VALUE;
 
         private int train(boolean showErrorAtEachEpoch, boolean showHiddenWeightsAtEachEpoch, boolean showErrorAtConverge) throws IOException {
-            double target = 0.00005;
+            double target = 0.000000005;
 
             NeuralNetInterface nn = new StateActionNeuralNet(true);
 
@@ -36,8 +36,6 @@
 
             return num_epoch;
         }
-
-
 
         public static void main(String []args) throws IOException {
             String showErrors = "n";

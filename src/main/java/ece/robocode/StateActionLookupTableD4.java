@@ -38,7 +38,7 @@ public class StateActionLookupTableD4 implements LUTInterface {
                 for (int c = 0; c < numDim3Levels; c++) {
                     for (int d = 0; d <numDim4Levels; d++) {
                         //lookupTable[a][b][c][d] = Math.random();
-                        lookupTable[a][b][c][d] = (Math.random() - 0.5) * 5000;
+                        lookupTable[a][b][c][d] = (Math.random() - 0.5) * 50;
                         visits[a][b][c][d] = 0;
                     }
                 }
@@ -62,6 +62,9 @@ public class StateActionLookupTableD4 implements LUTInterface {
                 for (int c = 0; c < numDim3Levels; c++) {
                     for (int d = 0; d <numDim4Levels; d++) {
                         visiting_q_value = lookupTable[a][b][c][d];
+                        if (visiting_q_value == Double.MAX_VALUE){
+                            continue;
+                        }
                         if (visiting_q_value > max_q_value){
                             max_q_value = visiting_q_value;
                         }
@@ -151,7 +154,6 @@ public class StateActionLookupTableD4 implements LUTInterface {
     public void load(String argFileName) throws IOException {
         FileInputStream inputFile = new FileInputStream(argFileName);
         BufferedReader inputReader = new BufferedReader(new InputStreamReader( inputFile ));
-        //int numExpectedRows = numDim1Levels * numDim2Levels * numDim3Levels * numDim4Levels * numDim5Levels;
         int numExpectedRows = numDim1Levels * numDim2Levels * numDim3Levels * numDim4Levels;
 
         // Check the number of rows is compatible
@@ -178,14 +180,12 @@ public class StateActionLookupTableD4 implements LUTInterface {
                         double q = Double.parseDouble(tokens[4]);
                         int v = Integer.parseInt(tokens[5]);
                         visits[a][b][c][d] = v;
-                        if (v == 0) {
+                        if (v > 3) {
+                            lookupTable[a][b][c][d] = q;
+                        }else {
                             //there are a few state actions that are not visited which will have a magnified value compared to visited state action
                             //we would suggest to eliminate these values
-                            lookupTable[a][b][c][d] = -1;
-                        }
-                        else
-                        {
-                            lookupTable[a][b][c][d] = q;
+                            lookupTable[a][b][c][d] = Double.MAX_VALUE;
                         }
                     }
                 }

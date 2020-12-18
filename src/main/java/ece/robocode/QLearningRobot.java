@@ -26,13 +26,14 @@ public class QLearningRobot extends AdvancedRobot {
     public static final boolean useQLearning = true;
 
     //Discount factor & learning rate used by RL
-    protected static double GAMMA = 0.7;
-    protected static double ALPHA = 0.5;
+    protected static double GAMMA = 0.9;
+    protected static double ALPHA = 0.4;
     protected static double EPSILON_INITIAL = 0.3;
-    protected static int STOP_RANDOM_ACTION_ROUND = 1000;
+    protected static int STOP_RANDOM_ACTION_ROUND = 2000;
     protected double epsilon = EPSILON_INITIAL;
 
     protected double reward = 0.0;
+    protected static double accumulativeReward = 0;
 
     //Rewards
     protected final double badTerminalReward = -10.0;
@@ -97,19 +98,13 @@ public class QLearningRobot extends AdvancedRobot {
         // normalize the turn to take the shortest path there
         setTurnGunRight(normalizeBearing(turn));
 
-        try {
-            makeDecision();
-        } catch (IOException ioException) {
-            ioException.printStackTrace();
-        }
+        makeDecision();
 
         executeAction(currentAction, firePower);
         numOfMoves ++;
 
         setTurnRadarLeftRadians(getRadarTurnRemainingRadians());
     }
-
-
 
     double normalizeBearing(double angle) {
         while (angle >  180) angle -= 360;
@@ -169,72 +164,92 @@ public class QLearningRobot extends AdvancedRobot {
         }
     }
 
-    @Override
-    public void onBulletHit(BulletHitEvent event) {
-        //currentReward = goodInstantReward;
-        double change = event.getBullet().getPower() * goodInstantReward ;
-        //out.println("Bullet Hit: " + change);
-        reward += (int)change;
+    protected void trackResults() {
+        //save the current win percentage for each chunk_size
+        log.stream.printf("%2.1f\t%2.1f\n", 100.0 * totalNumWins / totalNumRounds, accumulativeReward);
     }
 
-    public void onBulletHitBullet(BulletHitBulletEvent e)
-    {
-        reward += badInstantReward;
-    }
-    /**
-     * onHitByBullet: What to do when you're hit by a bullet
-     */
-    public void onHitByBullet(HitByBulletEvent e) {
-        double power = e.getBullet().getPower();
-        double change = badInstantReward * power;
+    public void finishOneRound() {
+        totalNumRounds++;
 
-        reward += (int)change;
+        if (((totalNumRounds % CHUNK_SIZE == 0) && totalNumRounds != 0)) {
+            //reset accumulative reward after each round
+            trackResults();
+            //log.stream.println("TESTING...onRoundEnded..accumulativeReward1 = " + accumulativeReward);
+            accumulativeReward = 0;
+        }
+
+        numOfMoves = 0;
     }
 
     @Override
     public void onDeath(DeathEvent event) {
         reward += badTerminalReward;
-    }
-
-    @Override
-    public void onRoundEnded(RoundEndedEvent event) {
-        super.onRoundEnded(event);
-        totalNumRounds++;
-        //log.stream.println("total number rounds " + totalNumRounds);
-
-        if (((totalNumRounds % CHUNK_SIZE == 0) && totalNumRounds != 0)) {
-            trackResults();
-        }
-        numOfMoves = 0;
-    }
-
-    protected void trackResults() {
-        //save the current win percentage for each chunk_size
-        log.stream.printf("%2.1f\n", 100.0 * totalNumWins / totalNumRounds);
+        //log.stream.println("TESTING.........................................................................onDeath..reward = " + reward);
+        performValueFunction(null);
+        finishOneRound();
     }
 
     @Override
     public void onWin(WinEvent event) {
         totalNumWins++;
         reward += goodTerminalReward;
+        //log.stream.println("TESTING.........................................................................onWin..reward = " + reward);
+        performValueFunction(null);
+        log.stream.println("TESTING...onWin..totalNumWins = " + totalNumWins + " per totalNumRounds=" + totalNumRounds);
+        finishOneRound();
     }
 
     @Override
+    public void onBulletHit(BulletHitEvent event) {
+        //currentReward = goodInstantReward;
+        double change = event.getBullet().getPower() * goodInstantReward ;
+        //out.println("Bullet Hit: " + change);
+        //double change = goodInstantReward;
+        reward += (int)change;
+        //reward += 3;
+        //log.stream.println("TESTING...onBulletHit..reward = " + reward);
+    }
+
+    @Override
+    public void onBulletHitBullet(BulletHitBulletEvent e)
+    {
+        reward += badInstantReward;
+        //log.stream.println("TESTING...onBulletHitBullet..reward = " + reward);
+    }
+    /**
+     * onHitByBullet: What to do when you're hit by a bullet
+     */
+    public void onHitByBullet(HitByBulletEvent e) {
+        double power = e.getBullet().getPower();
+        //double power = 1;
+        double change = badInstantReward * power;
+
+        reward += (int)change;
+        //reward += -3;
+        //log.stream.println("TESTING...onHitByBullet..reward = " + reward);
+    }
+    @Override
     public void onHitWall(HitWallEvent event) {
         reward += badInstantReward;
+        //reward += -2;
         moveDirection *= -1;
+        //log.stream.println("TESTING...onHitWall..reward = " + reward);
     }
 
     @Override
     public void onHitRobot(HitRobotEvent event) {
         reward += badInstantReward;
+        //reward += -2;
         moveDirection *= -1;
+        //log.stream.println("TESTING...onHitRobot..reward = " + reward);
     }
 
     public void onBulletMissed(BulletMissedEvent e)
     {
         double change = -e.getBullet().getPower();
         reward += (int)change;
+        //log.stream.println("TESTING...onBulletMissed..reward = " + reward);
     }
 
     @Override
@@ -309,46 +324,48 @@ public class QLearningRobot extends AdvancedRobot {
         };
     }
 
-    private void makeDecision() throws IOException {
+    private void makeDecision() {
         if(numOfMoves == 0) //first move
         {
             currentAction = Action.SelectRandomAction();
             return;
         }
-        //if(currentState.isNotEqual(previousState)) {
             if (totalNumRounds > STOP_RANDOM_ACTION_ROUND){ //stop exploration after initial rounds
                 epsilon = 0.0;
             }
 
             Pair<Action.enumActions, Double> bestActionValue = null;
-            //take action
-            if(Math.random() > epsilon )
+            //make decision for next action
+            if(Math.random() > epsilon ) //greedy move
             {
                 bestActionValue = this.getBestAction(currentState);
                 currentAction = bestActionValue.getKey();
-            }else{ //try exploration
+                //log.stream.println("TESTING...makeDecision greedy move..bestAction = " + currentAction.name());
+            }else{ //try exploration => random move
                 currentAction = Action.SelectRandomAction();
+                //log.stream.println("TESTING...makeDecision random move..bestAction = " + currentAction.name());
             }
-
+        if(currentState.isNotEqual(previousState)) {
             prePerformingValueFunctions();
 
+            //update policy
             performValueFunction(bestActionValue);
 
             postPerformingValueFunctions();
+        }
 
-            //reset reward
-            reward = 0;
-        //}
+        if(currentAction == Action.enumActions.fire && getGunHeat() != 0) {
+            //reward += badInstantReward;
+            //log.stream.println("TESTING...makeDecision with action fire..reward = " + reward);
+        }
+    }
 
-        if(currentAction == Action.enumActions.fire && getGunHeat() != 0)
-            reward += badInstantReward;
+    protected void prePerformingValueFunctions() {
+        accumulativeReward = ALPHA*accumulativeReward + reward;
 
     }
 
-    protected void prePerformingValueFunctions() throws IOException {
-    }
-
-    protected void postPerformingValueFunctions() throws IOException {
+    protected void postPerformingValueFunctions(){
     }
 
     /**
@@ -356,6 +373,10 @@ public class QLearningRobot extends AdvancedRobot {
      * @param bestActionValue the best action
      */
     protected void performValueFunction(Pair<Action.enumActions, Double> bestActionValue) {
+       //log.stream.println("TESTING...performValueFunction..accumulativeReward = "+ accumulativeReward + ". reward = " + reward + " for state-action = " + previousState.StateActionValueString(previousAction.ordinal()));
+
+        //log.stream.println("TESTING...performValueFunction..accumulativeReward = " + accumulativeReward);
+
         if (useQLearning){
             q.train(previousState.StateActionValue(previousAction.ordinal()),
                         this.ComputeQWithOffPolicy(previousState, currentState, previousAction, bestActionValue));
@@ -363,5 +384,7 @@ public class QLearningRobot extends AdvancedRobot {
             q.train(previousState.StateActionValue(previousAction.ordinal())
                     , this.ComputeQWithOnPolicy(previousState, currentState, previousAction, currentAction));
         }
+        //reset reward
+        reward = 0;
     }
 }
