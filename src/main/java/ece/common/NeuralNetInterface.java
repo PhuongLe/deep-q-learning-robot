@@ -1,6 +1,8 @@
 package ece.common;
 
-import ece.common.CommonInterface;
+import ece.backpropagation.StateActionNeuralNet;
+
+import java.io.IOException;
 
 /**
  4 * @date 20 June 2012
@@ -8,14 +10,20 @@ import ece.common.CommonInterface;
  6 *
  7 */
 public interface NeuralNetInterface extends CommonInterface {
-    double bias = 1.0; // The input for each neurons bias weight
+    int MAX_EPOCH = 20000;
+    int DID_NOT_CONVERGE = -1;
 
+    void cloneWeights(NeuralNetInterface targetNetwork);
+
+    void backwardPropagation(double[] inputVector, double singleError);
     /**
      * This method implements a general sigmoid with asymptotes bounded by (a,b)
      * @param x The input
      * @return f(x) = b_minus_a / (1 + e(-x)) - minus_a
      */
     double customSigmoid(double x);
+
+    void initializeTrainingSet() throws IOException;
 
     /**
      * Initialize the weights to random values.
@@ -47,24 +55,31 @@ public interface NeuralNetInterface extends CommonInterface {
      void initializeWithZeroWeights();
 
     /**
+     * return number of epoch need for convergence
+     * @param outputFileName
+     * @return
+     */
+    int run(String outputFileName, double target, boolean showErrorAtEachEpoch, boolean showHiddenWeightsAtEachEpoch, boolean showErrorAtConverge) throws IOException;
+
+    /**
      * Initialize bias
      */
     void initializeBias(double argHiddenBias, double argOutputBias);
 
-    String printHiddenWeights();
+    String printAllWeights();
 
     double[] getLastWeightChangeToOutput();
 
     double[][] getLastWeightChangeToHidden();
 
-    double[] getLastWeightToOutput();
+    double[] getOutputWeights();
 
-    double[][] getLastWeightToHidden();
-
-    /**
-     * This method is to enable batch update weights for each propagation round only
-     */
-    void enableBatchUpdateOption();
+    double[][] getHiddenWeight();
 
     void setActivation(Activation argActivation);
+
+    double getHiddenBias();
+    double getOutputBias();
+
+    int getNumInputs();
 } // End of public interface NeuralNetInterface

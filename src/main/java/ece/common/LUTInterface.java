@@ -1,5 +1,4 @@
 package ece.common;
-import ece.common.CommonInterface;
 
 public interface LUTInterface extends CommonInterface{
      /**
@@ -14,6 +13,8 @@ public interface LUTInterface extends CommonInterface{
      * @return The index where this vector maps to
      */
     public int indexFor(double [] x);
+
+    double GetScaleSize();
 }// End of public interface LUT
 
 

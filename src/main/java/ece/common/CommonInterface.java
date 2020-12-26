@@ -34,7 +34,7 @@ public interface CommonInterface {
      *
      * @param argFile of type File.
      */
-    public void save(File argFile);
+    public void save(File argFile) throws IOException;
 
     /**
      * Loads the LUT or neural net weights from file. The load must of course

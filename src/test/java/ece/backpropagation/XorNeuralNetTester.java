@@ -3,13 +3,15 @@ package ece.backpropagation;
 import org.junit.jupiter.api.Assertions;
 import org.junit.jupiter.api.Test;
 
-public class NeuralNetTester {
+import java.io.IOException;
+
+public class XorNeuralNetTester {
     /**
      * This is a very basic test, which looks at the very first weight updates from initial weights
      */
     @Test
-    public void testOneBackwardPropagationWithBinarySigmoidWithWeightsWithTrainingSet000(){
-        NeuralNet testNN = createBinaryNeuralNet();
+    public void testOneBackwardPropagationWithBinarySigmoidWithWeightsWithTrainingSet000() throws IOException {
+        XorNeuralNet testNN = createBinaryNeuralNet();
 
         double[][] argInputHiddenWeights = {
                 {0.23, 0.34, 0.14, 0.35},
@@ -43,8 +45,8 @@ public class NeuralNetTester {
      * This is a very basic test, which looks at the very first weight updates from initial weights
      */
     @Test
-    public void testOneBackwardPropagationWithBinarySigmoidWithWeightsWithTrainingSet101(){
-        NeuralNet testNN = createBinaryNeuralNet();
+    public void testOneBackwardPropagationWithBinarySigmoidWithWeightsWithTrainingSet101() throws IOException {
+        XorNeuralNet testNN = createBinaryNeuralNet();
 
         double[][] argInputHiddenWeights = {
                 {0.23, 0.34, 0.14, 0.35},
@@ -60,8 +62,8 @@ public class NeuralNetTester {
 
         testNN.train(inputVectors, target);
 
-        double [] actualLastWeightToOutput = testNN.getLastWeightToOutput();
-        double [][] actualLastWeightToHidden = testNN.getLastWeightToHidden();
+        double [] actualLastWeightToOutput = testNN.getOutputWeights();
+        double [][] actualLastWeightToHidden = testNN.getHiddenWeight();
 
         double [] expectedLastWeightToOutput = {0.314792222, 0.564953289, 0.134655362, 0.294967576};
         double [][] expectedLastWeightToHidden = {
@@ -80,8 +82,8 @@ public class NeuralNetTester {
      * This is a very basic test, which looks at the very first weight updates from initial weights
      */
     @Test
-    public void testOneForwardPropagationWithBinarySigmoidWithZeroWeightsWithTrainingSet000(){
-        NeuralNet testNN = createBinaryNeuralNet();
+    public void testOneForwardPropagationWithBinarySigmoidWithZeroWeightsWithTrainingSet000() throws IOException {
+        XorNeuralNet testNN = createBinaryNeuralNet();
 
         // Start with a zero set of weights
         testNN.initializeWithZeroWeights();
@@ -92,18 +94,18 @@ public class NeuralNetTester {
 
         double computedError = testNN.train(inputVectors, target);
 
-        double expectedError = -0.5;
+        double expectedError = -0.731058579;
 
         //Test computed error on output neuron
-        Assertions.assertEquals(expectedError, computedError);
+        Assertions.assertEquals(expectedError, computedError, 0.0001);
     }
 
     /**
      * This is a very basic test, which looks at the very first weight updates from initial weights
      */
     @Test
-    public void testOneForwardPropagationWithBinarySigmoidWithWeightsWithTrainingSet101(){
-        NeuralNet testNN = createBinaryNeuralNet();
+    public void testOneForwardPropagationWithBinarySigmoidWithWeightsWithTrainingSet101() throws IOException {
+        XorNeuralNet testNN = createBinaryNeuralNet();
 
         // Start with a zero set of weights
         double[][] argInputHiddenWeights = {
@@ -130,8 +132,8 @@ public class NeuralNetTester {
      * This is a very basic test, which looks at the very first weight updates from initial weights
      */
     @Test
-    public void testOneForwardPropagationWithBinarySigmoidWithWeightsWithTrainingSet000(){
-        NeuralNet testNN = createBinaryNeuralNet();
+    public void testOneForwardPropagationWithBinarySigmoidWithWeightsWithTrainingSet000() throws IOException {
+        XorNeuralNet testNN = createBinaryNeuralNet();
 
         // Start with a zero set of weights
         double[][] argInputHiddenWeights = {
@@ -158,8 +160,8 @@ public class NeuralNetTester {
      * This is a very basic test, which looks at the very first weight updates from initial weights
      */
     @Test
-    public void testOneForwardPropagationWithBipolarSigmoidWithWeightsWithTrainingSetM1M1M1(){
-        NeuralNet testNN = createBipolarNeuralNet();
+    public void testOneForwardPropagationWithBipolarSigmoidWithWeightsWithTrainingSetM1M1M1() throws IOException {
+        XorNeuralNet testNN = createBipolarNeuralNet();
 
         // Start with a zero set of weights
         double[][] argInputHiddenWeights = {
@@ -186,8 +188,8 @@ public class NeuralNetTester {
      * This is a very basic test, which looks at the very first weight updates from initial weights
      */
     @Test
-    public void testOneBackwardPropagationWithBipolarSigmoidWithWeightsWithTrainingSetM1M1M1() {
-        NeuralNet testNN = createBipolarNeuralNet();
+    public void testOneBackwardPropagationWithBipolarSigmoidWithWeightsWithTrainingSetM1M1M1() throws IOException {
+        XorNeuralNet testNN = createBipolarNeuralNet();
 
         double[][] argInputHiddenWeights = {
                 {0.23, 0.34, 0.14, 0.35},
@@ -203,8 +205,8 @@ public class NeuralNetTester {
 
         testNN.train(inputVectors, target);
 
-        double [] actualLastWeightToOutput = testNN.getLastWeightToOutput();
-        double [][] actualLastWeightToHidden = testNN.getLastWeightToHidden();
+        double [] actualLastWeightToOutput = testNN.getOutputWeights();
+        double [][] actualLastWeightToHidden = testNN.getHiddenWeight();
 
         double [] expectedLastWeightToOutput = {0.320866679, 0.562867653, 0.116863907, 0.292294294};
         double [][] expectedLastWeightToHidden = {
@@ -223,8 +225,8 @@ public class NeuralNetTester {
      * This is a very basic test, which looks at the very first weight updates from initial weights
      */
     @Test
-    public void testOneForwardPropagationWithBipolarSigmoidWithWeightsWithTrainingSetM111(){
-        NeuralNet testNN = createBipolarNeuralNet();
+    public void testOneForwardPropagationWithBipolarSigmoidWithWeightsWithTrainingSetM111() throws IOException {
+        XorNeuralNet testNN = createBipolarNeuralNet();
 
         // Start with a zero set of weights
         double[][] argInputHiddenWeights = {
@@ -251,8 +253,8 @@ public class NeuralNetTester {
      * This is a very basic test, which looks at the very first weight updates from initial weights
      */
     @Test
-    public void testOneBackwardPropagationWithBipolarSigmoidWithWeightsWithTrainingSetM111() {
-        NeuralNet testNN = createBipolarNeuralNet();
+    public void testOneBackwardPropagationWithBipolarSigmoidWithWeightsWithTrainingSetM111() throws IOException {
+        XorNeuralNet testNN = createBipolarNeuralNet();
 
         double[][] argInputHiddenWeights = {
                 {0.23, 0.34, 0.14, 0.35},
@@ -268,8 +270,8 @@ public class NeuralNetTester {
 
         testNN.train(inputVectors, target);
 
-        double [] actualLastWeightToOutput = testNN.getLastWeightToOutput();
-        double [][] actualLastWeightToHidden = testNN.getLastWeightToHidden();
+        double [] actualLastWeightToOutput = testNN.getOutputWeights();
+        double [][] actualLastWeightToHidden = testNN.getHiddenWeight();
 
         double [] expectedLastWeightToOutput = {0.331673052, 0.572978561, 0.145986311, 0.302212181};
         double [][] expectedLastWeightToHidden = {
@@ -288,8 +290,8 @@ public class NeuralNetTester {
      * This is a very basic test, which looks at the very first weight updates from initial weights
      */
     @Test
-    public void testOneBackwardPropagationWithBinarySigmoidWithWeightsWithTrainingSet101WithMomentum09(){
-        NeuralNet testNN = createBinaryNeuralNet();
+    public void testOneBackwardPropagationWithBinarySigmoidWithWeightsWithTrainingSet101WithMomentum09() throws IOException {
+        XorNeuralNet testNN = createBinaryNeuralNet();
         testNN.momentumTerm = 0.9;
 
         double[][] argDeltaHiddenWeight = {
@@ -313,8 +315,8 @@ public class NeuralNetTester {
 
         testNN.train(inputVectors, target);
 
-        double [] actualLastWeightToOutput = testNN.getLastWeightToOutput();
-        double [][] actualLastWeightToHidden = testNN.getLastWeightToHidden();
+        double [] actualLastWeightToOutput = testNN.getOutputWeights();
+        double [][] actualLastWeightToHidden = testNN.getHiddenWeight();
 
         double [] expectedLastWeightToOutput = {0.317897222, 0.567356289, 0.136545362, 0.299017576};
         double [][] expectedLastWeightToHidden = {
@@ -333,8 +335,8 @@ public class NeuralNetTester {
      * This is a very basic test, which looks at the very first weight updates from initial weights
      */
     @Test
-    public void testOneBackwardPropagationWithBinarySigmoidWithWeightsWithTrainingSet000WithMomentum09(){
-        NeuralNet testNN = createBinaryNeuralNet();
+    public void testOneBackwardPropagationWithBinarySigmoidWithWeightsWithTrainingSet000WithMomentum09() throws IOException {
+        XorNeuralNet testNN = createBinaryNeuralNet();
         testNN.momentumTerm = 0.9;
 
         double[][] argDeltaHiddenWeight = {
@@ -358,8 +360,8 @@ public class NeuralNetTester {
 
         testNN.train(inputVectors, target);
 
-        double [] actualLastWeightToOutput = testNN.getLastWeightToOutput();
-        double [][] actualLastWeightToHidden = testNN.getLastWeightToHidden();
+        double [] actualLastWeightToOutput = testNN.getOutputWeights();
+        double [][] actualLastWeightToHidden = testNN.getHiddenWeight();
 
         double [] expectedLastWeightToOutput = {0.295926769, 0.545224769, 0.114711769, 0.276871769};
         double [][] expectedLastWeightToHidden = {
@@ -378,8 +380,8 @@ public class NeuralNetTester {
      * This is a very basic test, which looks at the very first weight updates from initial weights
      */
     @Test
-    public void testOneBackwardPropagationWithBipolarSigmoidWithWeightsWithTrainingSet101WithMomentum09(){
-        NeuralNet testNN = createBipolarNeuralNet();
+    public void testOneBackwardPropagationWithBipolarSigmoidWithWeightsWithTrainingSet101WithMomentum09() throws IOException {
+        XorNeuralNet testNN = createBipolarNeuralNet();
         testNN.momentumTerm = 0.9;
 
         double[][] argDeltaHiddenWeight = {
@@ -403,8 +405,8 @@ public class NeuralNetTester {
 
         testNN.train(inputVectors, target);
 
-        double [] actualLastWeightToOutput = testNN.getLastWeightToOutput();
-        double [][] actualLastWeightToHidden = testNN.getLastWeightToHidden();
+        double [] actualLastWeightToOutput = testNN.getOutputWeights();
+        double [][] actualLastWeightToHidden = testNN.getHiddenWeight();
 
         double [] expectedLastWeightToOutput = {0.323971679, 0.565270653, 0.118753907, 0.296344294};
         double [][] expectedLastWeightToHidden = {
@@ -431,8 +433,8 @@ public class NeuralNetTester {
     }
 
     @Test
-    public void testActivationFunction(){
-        NeuralNet testNN = createBinaryNeuralNet();
+    public void testActivationFunction() throws IOException {
+        XorNeuralNet testNN = createBinaryNeuralNet();
 
         double computedActivation = testNN.computeActivation(0.023);
         double expectedValue = 0.505749747;
@@ -441,8 +443,8 @@ public class NeuralNetTester {
         Assertions.assertEquals(expectedValue, computedActivation, 0.000001);
     }
 
-    private NeuralNet createBipolarNeuralNet(){
-        return new NeuralNet(
+    private XorNeuralNet createBipolarNeuralNet() throws IOException {
+        return new XorNeuralNet(
                 2,
                 4,
                 0.2,             // rho
@@ -452,8 +454,8 @@ public class NeuralNetTester {
                 true);
     }
 
-    private NeuralNet createBinaryNeuralNet(){
-        return new NeuralNet(
+    private XorNeuralNet createBinaryNeuralNet() throws IOException {
+        return new XorNeuralNet(
                 2,
                 4,
                 0.2,             // rho

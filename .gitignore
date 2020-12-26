@@ -3,6 +3,7 @@
 
 # Log file
 *.log
+!Matlab_processing/Process_LuT/2020-12-04-00-57-05-robocode-lut_preprocess.log
 
 # BlueJ files
 *.ctxt
@@ -24,3 +25,15 @@ hs_err_pid*
 /*.ini
 /.idea/*.ini
 *.ini
+*.iml
+*.lst
+config/*
+robots/*
+/out/report/*.dat
+/Report/*.csv
+/Matlab_processing/Process_LuT/2020-12-04-00-57-05-robocode-lut_preprocess.log
+/Matlab_processing/Process_LuT/2020-12-04-00-57-05-robocode-lut_processed.txt
+/Matlab_processing/Process_LuT/convertToThCode.m
+/Matlab_processing/Process_LuT/initialLuTMat.mat
+/Matlab_processing/Process_LuT/processLuT.m
+/Matlab_processing/Process_LuT/processedLuT.mat

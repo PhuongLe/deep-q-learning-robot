@@ -1,4 +1,4 @@
-package ece.robocode;
+package ece.common;
 
 import java.util.Random;
 

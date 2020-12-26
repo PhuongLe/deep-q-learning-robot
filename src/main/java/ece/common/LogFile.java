@@ -1,4 +1,4 @@
-package ece.robocode;
+package ece.common;
 
 import java.io.File;
 import java.io.IOException;
@@ -33,9 +33,14 @@ public class LogFile {
             System.out.println( "*** IO exception during file creation attempt.");
         }
     }
-    public void printHyperParamters(Pair<String, Double>[] parameters){
-        for (int i = 0; i <parameters.length; i++) {
-            stream.printf("%s:   %2.2f\n", parameters[i].getKey(), parameters[i].getValue());
+    public void printHyperParameters(Pair<String, Double>[] parameters){
+        for (Pair<String, Double> parameter : parameters) {
+            stream.printf("%s:   %2.2f\n", parameter.getKey(), parameter.getValue());
+        }
+    }
+    public void closeStream(){
+        if(stream!=null){
+            stream.close();
         }
     }
 } // End of public class LogFile
