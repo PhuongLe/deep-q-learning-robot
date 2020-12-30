@@ -1,8 +1,8 @@
-    package ece.backpropagation;
+    package backpropagation;
 
-    import ece.common.NeuralNetInterface;
+    import common.NeuralNetInterface;
 
-    import java.io.*;
+    import java.io.IOException;
     import java.time.LocalDateTime;
     import java.time.format.DateTimeFormatter;
     import java.util.Scanner;
@@ -13,7 +13,6 @@
         static int argumentA;
         static int argumentB;
         static boolean argUseBipolarHiddenNeurons = false;
-
         static double argMomentum = 0.9;
 
         private int train(String outputFileName, boolean showErrorAtEachEpoch, boolean showHiddenWeightsAtEachEpoch, boolean showErrorAtConverge) throws IOException {
@@ -22,6 +21,7 @@
             XorNeuralNet nn = new XorNeuralNet(
                     2,
                     4,
+                    1,
                     0.02,                // rho
                     argMomentum,                    // alpha
                     argumentA,                      // lower bound of sigmoid on output neuron
@@ -30,8 +30,6 @@
                     true);
 
             nn.initializeWeights();
-            nn.initializeBias(1, 1);
-            //nn.enableBatchUpdateOption();
 
             //Activation activation = new TanhActivation();
             //Activation activation = new ReLuActivation();
@@ -43,7 +41,9 @@
         public static void main(String []args) throws IOException {
             Scanner reader = new Scanner(System.in);
             System.out.print("Enter the option you want to run 0.binary 1.bipolar: ");
-            int option = reader.nextInt();
+            System.out.println();
+            //int option = reader.nextInt();
+            int option = 1;
             /*System.out.print("Enter the number of trials you want to run: ");
             int numTrials = reader.nextInt();
             System.out.print("Do you want to see error at each epoch y/n?: ");
@@ -53,7 +53,7 @@
             System.out.print("Do you want to see error at converge y/n?: ");
             String showErrorAtConverge = reader.next();*/
 
-            int numTrials = 100;
+            int numTrials = 1;
             String showErrors = "n";
             String showHiddenWeights = "n";
             String showErrorAtConverge = "n";
