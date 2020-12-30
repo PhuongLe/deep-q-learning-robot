@@ -21,7 +21,7 @@ public class XorNeuralNetTester {
         testNN.initializeWeights(argInputHiddenWeights, argOutputHiddenWeights);
 
         //Now apply a single training set
-        double[] inputVectors = {0.0, 0.0, 1.0};
+        double[] inputVectors = {0.0, 0.0};
         double[] target = {0.0};
 
         testNN.train(inputVectors, target);
@@ -60,7 +60,7 @@ public class XorNeuralNetTester {
         testNN.initializeWeights(argInputHiddenWeights, argOutputHiddenWeights);
 
         //Now apply a single training set
-        double[] inputVectors = {1.0, 0.0, 1.0};
+        double[] inputVectors = {1.0, 0.0};
         double[] target = {1.0};
 
         testNN.train(inputVectors, target);
@@ -93,7 +93,7 @@ public class XorNeuralNetTester {
         testNN.initializeWithZeroWeights();
 
         //Now apply a single training set
-        double[] inputVectors = {0.0, 0.0, 1.0};
+        double[] inputVectors = {0.0, 0.0};
         double[] target = {0.0};
 
         double computedError = testNN.train(inputVectors, target);
@@ -122,7 +122,7 @@ public class XorNeuralNetTester {
         testNN.initializeWeights(argInputHiddenWeights, argOutputHiddenWeights);
 
         //Now apply a single training set
-        double[] inputVectors = {1.0, 0.0, 1.0};
+        double[] inputVectors = {1.0, 0.0};
         double[] target = {1.0};
 
         double computedError = testNN.train(inputVectors, target);
@@ -151,7 +151,7 @@ public class XorNeuralNetTester {
         testNN.initializeWeights(argInputHiddenWeights, argOutputWeights);
 
         //Now apply a single training set
-        double[] inputVectors = {0.0, 0.0, 1.0};
+        double[] inputVectors = {0.0, 0.0};
         double[] target = {0.0};
 
         double computedError = testNN.train(inputVectors, target);
@@ -178,7 +178,7 @@ public class XorNeuralNetTester {
         testNN.initializeWeights(argInputHiddenWeights, argOutputHiddenWeights);
 
         //Now apply a single training set
-        double[] inputVectors = {-1.0, -1.0, 1.0};
+        double[] inputVectors = {-1.0, -1.0};
         double[] target = {-1.0};
 
         double computedError = testNN.train(inputVectors, target);
@@ -207,7 +207,7 @@ public class XorNeuralNetTester {
         testNN.initializeWeights(argInputHiddenWeights, argOutputHiddenWeights);
 
         //Now apply a single training set
-        double[] inputVectors = {-1.0, -1.0, 1.0};
+        double[] inputVectors = {-1.0, -1.0};
         double[] target = {-1.0};
 
         testNN.train(inputVectors, target);
@@ -246,7 +246,7 @@ public class XorNeuralNetTester {
         testNN.initializeWeights(argInputHiddenWeights, argOutputHiddenWeights);
 
         //Now apply a single training set
-        double[] inputVectors = {-1.0, 1.0, 1.0};
+        double[] inputVectors = {-1.0, 1.0};
         double[] target = {1.0};
 
         double computedError = testNN.train(inputVectors, target);
@@ -275,7 +275,7 @@ public class XorNeuralNetTester {
         testNN.initializeWeights(argInputHiddenWeights, argOutputHiddenWeights);
 
         //Now apply a single training set
-        double[] inputVectors = {-1.0, 1.0, 1.0};
+        double[] inputVectors = {-1.0, 1.0};
         double[] target = {1.0};
 
         testNN.train(inputVectors, target);
@@ -322,7 +322,7 @@ public class XorNeuralNetTester {
         testNN.initializeWeights(argInputHiddenWeights, argOutputHiddenWeights);
 
         //Now apply a single training set
-        double[] inputVectors = {1.0, 0.0, 1.0};
+        double[] inputVectors = {1.0, 0.0};
         double[] target = {1.0};
 
         testNN.initializeWeights(argInputHiddenWeights, argOutputHiddenWeights, argDeltaHiddenWeight, argDeltaOutputWeight);
@@ -370,7 +370,7 @@ public class XorNeuralNetTester {
         double[][] argOutputHiddenWeights = {{0.31, 0.56, 0.13, 0.29, 0.42}};
 
         //Now apply a single training set
-        double[] inputVectors = {0.0, 0.0, 1.0};
+        double[] inputVectors = {0.0, 0.0};
         double[] target = {0.0};
 
         testNN.initializeWeights(argInputHiddenWeights, argOutputHiddenWeights, argDeltaHiddenWeight, argDeltaOutputWeight);
@@ -419,7 +419,7 @@ public class XorNeuralNetTester {
         testNN.initializeWeights(argInputHiddenWeights, argOutputHiddenWeights);
 
         //Now apply a single training set
-        double[] inputVectors = {-1.0, -1.0, 1.0};
+        double[] inputVectors = {-1.0, -1.0};
         double[] target = {-1.0};
 
         testNN.initializeWeights(argInputHiddenWeights, argOutputHiddenWeights, argDeltaHiddenWeight, argDeltaOutputWeight);
@@ -481,7 +481,7 @@ public class XorNeuralNetTester {
         testNN.initializeWeights(argInputHiddenWeights, argOutputHiddenWeights);
 
         //Now apply a single training set
-        double[] inputVectors = {-1.0, 1.0, 1.0};
+        double[] inputVectors = {-1.0, 1.0};
         double[] target = {1.0};
 
         testNN.initializeWeights(argInputHiddenWeights, argOutputHiddenWeights, argDeltaHiddenWeight, argDeltaOutputWeight);

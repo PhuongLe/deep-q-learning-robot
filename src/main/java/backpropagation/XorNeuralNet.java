@@ -74,7 +74,7 @@ public class XorNeuralNet implements NeuralNetInterface {
         deltaOutputWeight = new double[argNumOutputs][argNumHiddenNeurons + 1];
 
         hiddenS = new double[argNumHiddenNeurons];
-        hiddenY = new double[argNumHiddenNeurons + 1]; //one more value as input bias value for output layer
+        hiddenY = new double[argNumHiddenNeurons];
         deltaHiddenS = new double[argNumHiddenNeurons];
         deltaOutputS = new double[argNumOutputs];
         outputS = new double[argNumOutputs];
@@ -100,42 +100,36 @@ public class XorNeuralNet implements NeuralNetInterface {
 
     @Override
     public void cloneWeights(NeuralNetInterface targetNetwork) {
-        double[][] targetHiddentWeights = targetNetwork.getHiddenWeight();
+        double[][] targetHiddenWeights = targetNetwork.getHiddenWeight();
         for (int i=0; i < numInputs + 1; i++){
-            for (int j=0; j < numHiddenNeurons; j++){
-                this.hiddenWeight[i][j] = targetHiddentWeights[i][j];
-            }
+            System.arraycopy(targetHiddenWeights[i], 0, this.hiddenWeight[i], 0, numHiddenNeurons);
         }
 
         double[][] targetOutputWeights = targetNetwork.getOutputWeights();
         for (int j=0; j < numOutputs; j++) {
-            for (int i=0; i < numHiddenNeurons + 1; i++){
-                this.outputWeight[j][i] = targetOutputWeights[j][i];
-            }
+            System.arraycopy(targetOutputWeights[j], 0, this.outputWeight[j], 0, numHiddenNeurons + 1);
         }
     }
 
     /**
      * This is to compute neural network's output by performing forward propagation
-     * @param inputVector
-     * @return
+     * @param inputVector inputs vector
+     * @return computed outputs vector of the given inputs vector
      */
     @Override
     public double[] outputFor(double[] inputVector) {
         for(int j = 0; j < numHiddenNeurons; j++){ //Keep the bias node unchanged
-            hiddenS[j] = 0;
-            for(int i = 0; i < numInputs + 1; i++){
+            hiddenS[j] = hiddenWeight[numInputs][j];
+            for(int i = 0; i < numInputs; i++){
                 hiddenS[j] += inputVector[i] * hiddenWeight[i][j];
             }
             hiddenY[j] = computeActivation(hiddenS[j]);
         }
-        hiddenY[numHiddenNeurons] = 1; //for bias of output layer
-
 
         //assume that we only have one output for each inputs set
         for(int i = 0; i < numOutputs; i++) {
-            outputS[i] = 0;
-            for (int j = 0; j < numHiddenNeurons + 1; j++) {
+            outputS[i] = outputWeight[i][numHiddenNeurons];
+            for (int j = 0; j < numHiddenNeurons; j++) {
                 outputS[i] += hiddenY[j] * outputWeight[i][j];
             }
             outputY[i] = computeActivation(outputS[i]);
@@ -171,11 +165,15 @@ public class XorNeuralNet implements NeuralNetInterface {
 
         //Update weights between hidden layer and output layer
         for(int i = 0; i < numOutputs; i++) {
-            for (int j = 0; j < numHiddenNeurons + 1; j++) {
+            for (int j = 0; j < numHiddenNeurons; j++) {
                 deltaOutputWeight[i][j] = momentumTerm * deltaOutputWeight[i][j]
                         + learningRate * deltaOutputS[i] * hiddenY[j];
                 outputWeight[i][j] += deltaOutputWeight[i][j];
             }
+            //for bias weights
+            deltaOutputWeight[i][numHiddenNeurons] = momentumTerm * deltaOutputWeight[i][numHiddenNeurons]
+                    + learningRate * deltaOutputS[i] * 1;
+            outputWeight[i][numHiddenNeurons] += deltaOutputWeight[i][numHiddenNeurons];
         }
 
         //Compute the delta values of hidden layer
@@ -189,11 +187,15 @@ public class XorNeuralNet implements NeuralNetInterface {
 
         //Update weights between input layer and hidden layer
         for (int j = 0; j < numHiddenNeurons; j++) {
-            for (int i = 0; i < numInputs + 1; i++) {
+            for (int i = 0; i < numInputs; i++) {
                 deltaHiddenWeight[i][j] = momentumTerm * deltaHiddenWeight[i][j]
                         + learningRate * deltaHiddenS[j] * inputVector[i];
                 hiddenWeight[i][j] += deltaHiddenWeight[i][j];
             }
+            //for bias' weights
+            deltaHiddenWeight[numInputs][j] = momentumTerm * deltaHiddenWeight[numInputs][j]
+                    + learningRate * deltaHiddenS[j] * 1;
+            hiddenWeight[numInputs][j] += deltaHiddenWeight[numInputs][j];
         }
     }
 
@@ -273,7 +275,7 @@ public class XorNeuralNet implements NeuralNetInterface {
     @Override
     public void initializeTrainingSet(){
         numTrainingSet = 4;
-        inputValues = new double[numTrainingSet][numInputs + 1];
+        inputValues = new double[numTrainingSet][numInputs];
         actualOutputs = new double[numTrainingSet][numOutputs];
 
         if (!isBipolar) {
@@ -284,19 +286,15 @@ public class XorNeuralNet implements NeuralNetInterface {
 
             inputValues[0][0] = 0;
             inputValues[0][1] = 0;
-            inputValues[0][2] = 1; //bias
 
             inputValues[1][0] = 0;
             inputValues[1][1] = 1;
-            inputValues[1][2] = 1; //bias
 
             inputValues[2][0] = 1;
             inputValues[2][1] = 0;
-            inputValues[2][2] = 1; //bias
 
             inputValues[3][0] = 1;
             inputValues[3][1] = 1;
-            inputValues[3][2] = 1; //bias
             return;
         }
         actualOutputs[0][0] = -1;
@@ -306,19 +304,15 @@ public class XorNeuralNet implements NeuralNetInterface {
 
         inputValues[0][0] = -1;
         inputValues[0][1] = -1;
-        inputValues[0][2] = 1; //bias
 
         inputValues[1][0] = -1;
         inputValues[1][1] = 1;
-        inputValues[1][2] = 1; //bias
 
         inputValues[2][0] = 1;
         inputValues[2][1] = -1;
-        inputValues[2][2] = 1; //bias
 
         inputValues[3][0] = 1;
         inputValues[3][1] = 1;
-        inputValues[3][2] = 1; //bias
     }
 
     @Override
@@ -411,17 +405,16 @@ public class XorNeuralNet implements NeuralNetInterface {
      * You should raise an error in the case that an attempt is being
      * made to load data into an LUT or neural net whose structure does not match
      * the data in the file. (e.g. wrong number of hidden neurons).
-     * @throws IOException
+     * @throws IOException ioexception
      */
-    // Source: Dr. Sarkaria's code from tutorial class
     @Override
     public void load(String argFileName) throws IOException {
         FileInputStream inputFile = new FileInputStream(argFileName);
         BufferedReader inputReader = new BufferedReader(new InputStreamReader(inputFile));
 
         // Check that NN defined for file matches that created
-        int numInputInFile = Integer.valueOf(inputReader.readLine());
-        int numHiddenInFile = Integer.valueOf(inputReader.readLine());
+        int numInputInFile = Integer.parseInt(inputReader.readLine());
+        int numHiddenInFile = Integer.parseInt(inputReader.readLine());
         if(numInputInFile != numInputs){
             System.out.println("--- Number of inputs in file is " + numInputInFile + "Expected " + numInputs);
             inputReader.close();
@@ -436,7 +429,7 @@ public class XorNeuralNet implements NeuralNetInterface {
         // Loads the weights for the bias as well
         for (int i = 0; i < numInputs + 1; i++){
             for (int j = 0; j < numHiddenNeurons; j++){
-                hiddenWeight[i][j] = Double.valueOf(inputReader.readLine());
+                hiddenWeight[i][j] = Double.parseDouble(inputReader.readLine());
             }
         }
 
@@ -444,10 +437,9 @@ public class XorNeuralNet implements NeuralNetInterface {
         // Loads the weight for the bias as well
         for (int i = 0; i < numHiddenNeurons + 1; i++){
             for (int j=0; j < numOutputs; j++) {
-                outputWeight[j][i] = Double.valueOf(inputReader.readLine());
+                outputWeight[j][i] = Double.parseDouble(inputReader.readLine());
             }
         }
-
 
         // Close file
         inputFile.close();
@@ -522,15 +514,15 @@ public class XorNeuralNet implements NeuralNetInterface {
         PrintWriter output = new PrintWriter(writer);
 
         int epochCnt = 0;
-        String epochIndexes = "";
-        String errorString = "";
+        StringBuilder epochIndexes = new StringBuilder();
+        StringBuilder errorString = new StringBuilder();
         for (Double err : errors) {
-            epochIndexes += epochCnt + ",";
-            errorString += err + ",";
+            epochIndexes.append(epochCnt).append(",");
+            errorString.append(err).append(",");
             epochCnt ++;
         }
-        epochIndexes = epochIndexes.substring(0, epochIndexes.length() - 1);
-        errorString = errorString.substring(0, errorString.length() - 1);
+        epochIndexes = new StringBuilder(epochIndexes.substring(0, epochIndexes.length() - 1));
+        errorString = new StringBuilder(errorString.substring(0, errorString.length() - 1));
         output.print(epochIndexes);
         output.println();
         output.print(errorString);
