@@ -5,21 +5,22 @@ import java.io.IOException;
 
 public interface CommonInterface {
     /**
-     * @param inputs The input vector. An array of doubles.
-     * @return The values returned by th LUT or NN for this input vector. That values can be single or multiple outputs
+     * This function is used for getting the corresponding value of a state-action space vector from a LUT or NN.
+     * @param stateActionSpaceVector The state-action space vector. An array of doubles.
+     * @return The value returned by th LUT or NN for this state-action space vector.
+     *         It would be the corresponding Q-Value of the state-action space vector
      */
-    double[] outputFor(double[] inputs);
+    double outputFor(double[] stateActionSpaceVector);
 
     /**
-     * This method will tell the NN or the LUT the output
-     * value that should be mapped to the given input vector. I.e.
-     * the desired correct output value for an input.
+     * This method will tell the NN or the LUT the target value that should be mapped to the given state-action vector. I.e.
+     * the desired correct output value for a state-action space.
      *
-     * @param inputs        The input vector
-     * @param expectedOutputs The new value to learn
-     * @return The error in the output for that input vector, that is the total of RMS error of the outputs
+     * @param stateActionSpaceVector The state-action space vector. An array of doubles.
+     * @param target The new value to learn. It would be properly the corresponding new Q-Value of the state-action space vector.
+     * @return The error in the output for that state-action space vector
      */
-    double train(double[] inputs, double[] expectedOutputs);
+    double train(double[] stateActionSpaceVector, double target);
 
     /**
      * A method to write either a LUT or weights of an neural net to a file.

@@ -13,7 +13,23 @@ public interface NeuralNetInterface extends CommonInterface {
 
     void cloneWeights(NeuralNetInterface targetNetwork);
 
-    void backwardPropagation(double[] inputVector, double[] errors);
+    double performBackPropagationTraining(double[] inputsVector, double[] expectedOutputsVector);
+
+    /**
+     * perform forward propagation for an inputs vector
+     * @param inputsVector The inputs vector. An array of doubles as inputs of the neural network
+     * @return the actual outputs of the corresponding inputs
+     */
+    double[] performFeedforward(double[] inputsVector);
+
+    /**
+     * perform backward propagation for the given errors vector
+     * @param inputsVector The inputs vector. An array of doubles as inputs of the neural network
+     * @param error The error corresponding to the inputs vector and the corresponding output at outputIndex
+     * @param outputIndex the index of the output corresponding to the error
+     */
+    void performSingleErrorPropagation(double[] inputsVector, int outputIndex, double error);
+
     /**
      * This method implements a general sigmoid with asymptotes bounded by (a,b)
      * @param x The input

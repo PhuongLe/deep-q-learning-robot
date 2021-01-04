@@ -1,27 +1,19 @@
-package ece.robocode;
+package reinforcement;
 
-import ece.common.Action;
-import ece.common.LogFile;
-import ece.common.State;
+import common.*;
 import javafx.util.Pair;
 import robocode.*;
 
 import java.io.File;
 import java.io.IOException;
-import java.text.SimpleDateFormat;
-import java.util.Date;
 
 /**
  * This robot is cloned from RLRobotV3 which has
  *      3 states: myEnergy, myDistanceToEnemy, my heat gun
  *      4 actions: attack, avoid, runaway, fire
  */
-public class QLearningRobot extends AdvancedRobot {
+public class QLearningRobo extends AdvancedRobot {
     static LogFile log = null;
-    static String baseFolder = "d:\\Google Drive\\LXP\\UBC\\Term 3\\CPEN 502 - ML\\Assignments\\Robocode\\out\\report\\" + new SimpleDateFormat("yyyy-MM-dd-HH-mm-ss") .format(new Date());
-    static String logFileName = baseFolder+ "-robocode.log";
-    static String lutFileName = baseFolder+ "-robocode-lut.log";
-
 
     public static final boolean useQLearning = true;
 
@@ -46,7 +38,6 @@ public class QLearningRobot extends AdvancedRobot {
     static private final int CHUNK_SIZE = 20;
     static protected int numOfMoves = 0;
 
-    //static int previousState=0, currentState=0;
     static protected State previousState = new State();
     static protected State currentState = new State();
     static protected Action.enumActions previousAction = Action.enumActions.avoid;
@@ -56,7 +47,7 @@ public class QLearningRobot extends AdvancedRobot {
     static protected int totalNumRounds = 0;
     static protected int totalNumWins = 0;
 
-    static private final StateActionLookupTableD4 q = new StateActionLookupTableD4(
+    static private final LUTInterface q = new QLearningLookupTable(
             State.NUM_ENERGY,
             State.NUM_DISTANCE,
             State.NUM_GUN_HEAT,
@@ -76,7 +67,7 @@ public class QLearningRobot extends AdvancedRobot {
     protected void initialize() {
         // Create log file
         if (log == null) {
-            log = new LogFile(getDataFile(logFileName));
+            log = new LogFile(getDataFile(AppConfiguration.RoboLogFileName));
             log.printHyperParameters(this.metadata());
         }
     }
@@ -175,7 +166,6 @@ public class QLearningRobot extends AdvancedRobot {
         if (((totalNumRounds % CHUNK_SIZE == 0) && totalNumRounds != 0)) {
             //reset accumulative reward after each round
             trackResults();
-            //log.stream.println("TESTING...onRoundEnded..accumulativeReward1 = " + accumulativeReward);
             accumulativeReward = 0;
         }
 
@@ -185,7 +175,6 @@ public class QLearningRobot extends AdvancedRobot {
     @Override
     public void onDeath(DeathEvent event) {
         reward += badTerminalReward;
-        //log.stream.println("TESTING.........................................................................onDeath..reward = " + reward);
         performValueFunction(null);
         finishOneRound();
     }
@@ -194,62 +183,46 @@ public class QLearningRobot extends AdvancedRobot {
     public void onWin(WinEvent event) {
         totalNumWins++;
         reward += goodTerminalReward;
-        //log.stream.println("TESTING.........................................................................onWin..reward = " + reward);
         performValueFunction(null);
-        log.stream.println("TESTING...onWin..totalNumWins = " + totalNumWins + " per totalNumRounds=" + totalNumRounds);
         finishOneRound();
     }
 
     @Override
     public void onBulletHit(BulletHitEvent event) {
-        //currentReward = goodInstantReward;
         double change = event.getBullet().getPower() * goodInstantReward ;
-        //out.println("Bullet Hit: " + change);
-        //double change = goodInstantReward;
         reward += (int)change;
-        //reward += 3;
-        //log.stream.println("TESTING...onBulletHit..reward = " + reward);
     }
 
     @Override
     public void onBulletHitBullet(BulletHitBulletEvent e)
     {
         reward += badInstantReward;
-        //log.stream.println("TESTING...onBulletHitBullet..reward = " + reward);
     }
     /**
      * onHitByBullet: What to do when you're hit by a bullet
      */
     public void onHitByBullet(HitByBulletEvent e) {
         double power = e.getBullet().getPower();
-        //double power = 1;
         double change = badInstantReward * power;
 
         reward += (int)change;
-        //reward += -3;
-        //log.stream.println("TESTING...onHitByBullet..reward = " + reward);
     }
     @Override
     public void onHitWall(HitWallEvent event) {
         reward += badInstantReward;
-        //reward += -2;
         moveDirection *= -1;
-        //log.stream.println("TESTING...onHitWall..reward = " + reward);
     }
 
     @Override
     public void onHitRobot(HitRobotEvent event) {
         reward += badInstantReward;
-        //reward += -2;
         moveDirection *= -1;
-        //log.stream.println("TESTING...onHitRobot..reward = " + reward);
     }
 
     public void onBulletMissed(BulletMissedEvent e)
     {
         double change = -e.getBullet().getPower();
         reward += (int)change;
-        //log.stream.println("TESTING...onBulletMissed..reward = " + reward);
     }
 
     @Override
@@ -259,7 +232,11 @@ public class QLearningRobot extends AdvancedRobot {
 
     @Override
     public void onBattleEnded(BattleEndedEvent event) {
-        q.save(getDataFile(lutFileName));
+        try {
+            q.save(getDataFile(AppConfiguration.RoboLutFileName));
+        } catch (IOException e) {
+            log.stream.println(e);
+        }
     }
 
     /**
@@ -286,13 +263,13 @@ public class QLearningRobot extends AdvancedRobot {
 
 
     private double ComputeQWithOffPolicy(State previousState, State currentState
-                                        , Action.enumActions previousAction
-                                        , Pair<Action.enumActions, Double> bestActionValue){
+            , Action.enumActions previousAction
+            , Pair<Action.enumActions, Double> bestActionValue){
         double[] previousStateAction = previousState.StateActionValue(previousAction.ordinal());
         double priorQ = q.outputFor(previousStateAction);
         double maxQ;
         if (bestActionValue == null) {
-             maxQ = getBestAction(currentState).getValue();
+            maxQ = getBestAction(currentState).getValue();
         }
         else
         {
@@ -330,21 +307,19 @@ public class QLearningRobot extends AdvancedRobot {
             currentAction = Action.SelectRandomAction();
             return;
         }
-            if (totalNumRounds > STOP_RANDOM_ACTION_ROUND){ //stop exploration after initial rounds
-                epsilon = 0.0;
-            }
+        if (totalNumRounds > STOP_RANDOM_ACTION_ROUND){ //stop exploration after initial rounds
+            epsilon = 0.0;
+        }
 
-            Pair<Action.enumActions, Double> bestActionValue = null;
-            //make decision for next action
-            if(Math.random() > epsilon ) //greedy move
-            {
-                bestActionValue = this.getBestAction(currentState);
-                currentAction = bestActionValue.getKey();
-                //log.stream.println("TESTING...makeDecision greedy move..bestAction = " + currentAction.name());
-            }else{ //try exploration => random move
-                currentAction = Action.SelectRandomAction();
-                //log.stream.println("TESTING...makeDecision random move..bestAction = " + currentAction.name());
-            }
+        Pair<Action.enumActions, Double> bestActionValue = null;
+        //make decision for next action
+        if(Math.random() > epsilon ) //greedy move
+        {
+            bestActionValue = this.getBestAction(currentState);
+            currentAction = bestActionValue.getKey();
+        }else{ //try exploration => random move
+            currentAction = Action.SelectRandomAction();
+        }
         if(currentState.isNotEqual(previousState)) {
             prePerformingValueFunctions();
 
@@ -352,11 +327,6 @@ public class QLearningRobot extends AdvancedRobot {
             performValueFunction(bestActionValue);
 
             postPerformingValueFunctions();
-        }
-
-        if(currentAction == Action.enumActions.fire && getGunHeat() != 0) {
-            //reward += badInstantReward;
-            //log.stream.println("TESTING...makeDecision with action fire..reward = " + reward);
         }
     }
 
@@ -373,13 +343,9 @@ public class QLearningRobot extends AdvancedRobot {
      * @param bestActionValue the best action
      */
     protected void performValueFunction(Pair<Action.enumActions, Double> bestActionValue) {
-       //log.stream.println("TESTING...performValueFunction..accumulativeReward = "+ accumulativeReward + ". reward = " + reward + " for state-action = " + previousState.StateActionValueString(previousAction.ordinal()));
-
-        //log.stream.println("TESTING...performValueFunction..accumulativeReward = " + accumulativeReward);
-
         if (useQLearning){
             q.train(previousState.StateActionValue(previousAction.ordinal()),
-                        this.ComputeQWithOffPolicy(previousState, currentState, previousAction, bestActionValue));
+                    this.ComputeQWithOffPolicy(previousState, currentState, previousAction, bestActionValue));
         }else{
             q.train(previousState.StateActionValue(previousAction.ordinal())
                     , this.ComputeQWithOnPolicy(previousState, currentState, previousAction, currentAction));

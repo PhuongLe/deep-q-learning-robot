@@ -4,13 +4,11 @@ import common.Activation;
 import common.NeuralNetInterface;
 
 import java.io.*;
-import java.util.ArrayList;
-import java.util.List;
-import java.util.Random;
+import java.util.*;
 
 //This NeuralNet class is design for a NN of 2+ inputs, 1 hidden layer with 4++ neurons and 1 output
 //The number of training set is 4 for each epoch
-public class XorNeuralNet implements NeuralNetInterface {
+public class BackpropagationBaseNetwork implements NeuralNetInterface {
     int numTrainingSet = 1;
     int numInputs;
     int numOutputs;
@@ -49,7 +47,7 @@ public class XorNeuralNet implements NeuralNetInterface {
      * @param argA            Integer lower bound of sigmoid used by the output neuron only.
      * @param argB            Integer upper bound of sigmoid used by the output neuron only.
      */
-    public XorNeuralNet(
+    public BackpropagationBaseNetwork(
             int argNumInputs,
             int argNumHiddenNeurons,
             int argNumOutputs,
@@ -86,7 +84,7 @@ public class XorNeuralNet implements NeuralNetInterface {
         }
     }
 
-    public XorNeuralNet(
+    public BackpropagationBaseNetwork(
             int argNumInputs,
             int argNumHidden,
             int argNumOutputs,
@@ -112,16 +110,49 @@ public class XorNeuralNet implements NeuralNetInterface {
     }
 
     /**
-     * This is to compute neural network's output by performing forward propagation
-     * @param inputVector inputs vector
-     * @return computed outputs vector of the given inputs vector
+     * This function is used for getting the corresponding value of a state-action space vector from a LUT or NN.
+     * @param stateActionSpaceVector The inputs vector. An array of doubles. It is properly the state-action space vector.
+     * @return The value returned by th LUT or NN for this inputs vector.
+     *         It would be the corresponding Q-Value of the inputs vector
      */
     @Override
-    public double[] outputFor(double[] inputVector) {
+    public double outputFor(double[] stateActionSpaceVector) {
+        if (stateActionSpaceVector.length != numInputs){
+            throw new IllegalArgumentException("inputsVector does not fit to the number of inputs");
+        }
+        double[] outputs = performFeedforward(stateActionSpaceVector);
+        return outputs[0];
+    }
+
+    @Override
+    public double train(double[] stateActionSpaceVector, double target) {
+        if (!(stateActionSpaceVector.length == numInputs && numOutputs == 1)
+                || (stateActionSpaceVector.length == numInputs + 1 && numOutputs > 1))
+        {
+            throw new InputMismatchException("Invalid neural network architecture!");
+        }
+        double error;
+        if (stateActionSpaceVector.length == numInputs){
+            error = target - outputY[0];
+            performSingleErrorPropagation(stateActionSpaceVector, 0, error);
+        } else {
+            int action = (int) stateActionSpaceVector[stateActionSpaceVector.length - 1];
+            if (action < 0 || action > numOutputs - 1){
+                throw new ArrayIndexOutOfBoundsException("Action index is out of range");
+            }
+            double[] inputsVector = Arrays.copyOfRange(stateActionSpaceVector, 0, stateActionSpaceVector.length - 2);
+            error = target - outputY[action];
+            performSingleErrorPropagation(inputsVector, action, error);
+        }
+        return error;
+    }
+
+    @Override
+    public double[] performFeedforward(double[] inputsVector){
         for(int j = 0; j < numHiddenNeurons; j++){ //Keep the bias node unchanged
             hiddenS[j] = hiddenWeight[numInputs][j];
             for(int i = 0; i < numInputs; i++){
-                hiddenS[j] += inputVector[i] * hiddenWeight[i][j];
+                hiddenS[j] += inputsVector[i] * hiddenWeight[i][j];
             }
             hiddenY[j] = computeActivation(hiddenS[j]);
         }
@@ -139,42 +170,20 @@ public class XorNeuralNet implements NeuralNetInterface {
     }
 
     @Override
-    public double train(double[] inputVector, double[] expectedOutput) {
-        double totalRMSErrors = 0;
-        double[] outputY = outputFor(inputVector);
-        double[] errors = new double[numOutputs];
-        for(int i = 0; i < numOutputs; i++) {
-            double singleError = expectedOutput[i] - outputY[i];
-            errors[i] = singleError;
-            totalRMSErrors = 0.5*Math.pow(singleError, 2);
-        }
-        backwardPropagation(inputVector, errors);
-        return totalRMSErrors/numOutputs;
-    }
-
-    /**
-     * This method implements a backward propagation for a single inputs/output.
-     * @param errors The output error calculated by forward propagation
-     */
-    @Override
-    public void backwardPropagation(double[] inputVector, double[] errors) {
+    public void performSingleErrorPropagation(double[] inputsVector, int outputIndex, double error) {
         //Compute the delta values of output layer
-        for(int i = 0; i < numOutputs; i++) {
-            deltaOutputS[i] = computeDerivativeOfActivation(errors[i], outputY[i]);
-        }
+        deltaOutputS[outputIndex] = computeDerivativeOfActivation(error, outputY[outputIndex]);
 
         //Update weights between hidden layer and output layer
-        for(int i = 0; i < numOutputs; i++) {
-            for (int j = 0; j < numHiddenNeurons; j++) {
-                deltaOutputWeight[i][j] = momentumTerm * deltaOutputWeight[i][j]
-                        + learningRate * deltaOutputS[i] * hiddenY[j];
-                outputWeight[i][j] += deltaOutputWeight[i][j];
-            }
-            //for bias weights
-            deltaOutputWeight[i][numHiddenNeurons] = momentumTerm * deltaOutputWeight[i][numHiddenNeurons]
-                    + learningRate * deltaOutputS[i] * 1;
-            outputWeight[i][numHiddenNeurons] += deltaOutputWeight[i][numHiddenNeurons];
+        for (int j = 0; j < numHiddenNeurons; j++) {
+            deltaOutputWeight[outputIndex][j] = momentumTerm * deltaOutputWeight[outputIndex][j]
+                    + learningRate * deltaOutputS[0] * hiddenY[j];
+            outputWeight[outputIndex][j] += deltaOutputWeight[outputIndex][j];
         }
+        //for bias weights
+        deltaOutputWeight[outputIndex][numHiddenNeurons] = momentumTerm * deltaOutputWeight[outputIndex][numHiddenNeurons]
+                + learningRate * deltaOutputS[outputIndex] * 1;
+        outputWeight[outputIndex][numHiddenNeurons] += deltaOutputWeight[outputIndex][numHiddenNeurons];
 
         //Compute the delta values of hidden layer
         for (int j = 0; j < numHiddenNeurons; j++) {
@@ -189,7 +198,7 @@ public class XorNeuralNet implements NeuralNetInterface {
         for (int j = 0; j < numHiddenNeurons; j++) {
             for (int i = 0; i < numInputs; i++) {
                 deltaHiddenWeight[i][j] = momentumTerm * deltaHiddenWeight[i][j]
-                        + learningRate * deltaHiddenS[j] * inputVector[i];
+                        + learningRate * deltaHiddenS[j] * inputsVector[i];
                 hiddenWeight[i][j] += deltaHiddenWeight[i][j];
             }
             //for bias' weights
@@ -198,6 +207,67 @@ public class XorNeuralNet implements NeuralNetInterface {
             hiddenWeight[numInputs][j] += deltaHiddenWeight[numInputs][j];
         }
     }
+
+    @Override
+    public double performBackPropagationTraining(double[] inputsVector, double[] expectedOutputsVector){
+        double totalRMSErrors = 0;
+        double[] outputY = performFeedforward(inputsVector);
+        double[] errors = new double[numOutputs];
+        for(int i = 0; i < numOutputs; i++) {
+            double singleError = expectedOutputsVector[i] - outputY[i];
+            errors[i] = singleError;
+            totalRMSErrors = 0.5*Math.pow(singleError, 2);
+            performSingleErrorPropagation(inputsVector, i, singleError);
+        }
+        return totalRMSErrors/numOutputs;
+    }
+
+//    /**
+//     * This method implements a backward propagation for a single inputs/output.
+//     * @param errors The output error calculated by forward propagation
+//     */
+//    @Override
+//    public void performErrorsBackpropagation(double[] inputVector, double[] errors) {
+//        //Compute the delta values of output layer
+//        for(int i = 0; i < numOutputs; i++) {
+//            deltaOutputS[i] = computeDerivativeOfActivation(errors[i], outputY[i]);
+//        }
+//
+//        //Update weights between hidden layer and output layer
+//        for(int i = 0; i < numOutputs; i++) {
+//            for (int j = 0; j < numHiddenNeurons; j++) {
+//                deltaOutputWeight[i][j] = momentumTerm * deltaOutputWeight[i][j]
+//                        + learningRate * deltaOutputS[i] * hiddenY[j];
+//                outputWeight[i][j] += deltaOutputWeight[i][j];
+//            }
+//            //for bias weights
+//            deltaOutputWeight[i][numHiddenNeurons] = momentumTerm * deltaOutputWeight[i][numHiddenNeurons]
+//                    + learningRate * deltaOutputS[i] * 1;
+//            outputWeight[i][numHiddenNeurons] += deltaOutputWeight[i][numHiddenNeurons];
+//        }
+//
+//        //Compute the delta values of hidden layer
+//        for (int j = 0; j < numHiddenNeurons; j++) {
+//            double errorAtj = 0;
+//            for(int i = 0; i < numOutputs; i++) {
+//                errorAtj += deltaOutputS[i] * outputWeight[i][j];
+//            }
+//            deltaHiddenS[j] = computeDerivativeOfActivation(errorAtj, hiddenY[j]);
+//        }
+//
+//        //Update weights between input layer and hidden layer
+//        for (int j = 0; j < numHiddenNeurons; j++) {
+//            for (int i = 0; i < numInputs; i++) {
+//                deltaHiddenWeight[i][j] = momentumTerm * deltaHiddenWeight[i][j]
+//                        + learningRate * deltaHiddenS[j] * inputVector[i];
+//                hiddenWeight[i][j] += deltaHiddenWeight[i][j];
+//            }
+//            //for bias' weights
+//            deltaHiddenWeight[numInputs][j] = momentumTerm * deltaHiddenWeight[numInputs][j]
+//                    + learningRate * deltaHiddenS[j] * 1;
+//            hiddenWeight[numInputs][j] += deltaHiddenWeight[numInputs][j];
+//        }
+//    }
 
     private double computeDerivativeOfActivation(double error, double y) {
         return error*activationFunction.ComputeDerivative(y);
@@ -272,6 +342,9 @@ public class XorNeuralNet implements NeuralNetInterface {
         }
     }
 
+    /**
+     * Initialize training set by XOR or Bipolar XOR presentation
+     */
     @Override
     public void initializeTrainingSet(){
         numTrainingSet = 4;
@@ -475,8 +548,8 @@ public class XorNeuralNet implements NeuralNetInterface {
         do {
             error = 0.0;
             for (int i = 0; i < numTrainingSet; i++) {
-                double computedError = this.train(this.inputValues[i], this.actualOutputs[i]);
-                //error += 0.5*Math.pow(computedError,2);
+                double computedError = this.performBackPropagationTraining(this.inputValues[i], this.actualOutputs[i]);
+                error += 0.5*Math.pow(computedError,2);
                 error += computedError;
             }
             errors.add(error);

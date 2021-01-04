@@ -1,11 +1,11 @@
-package ece.robocode;
+package reinforcement;
 
-import ece.common.LUTInterface;
+import common.LUTInterface;
 import robocode.RobocodeFileOutputStream;
 
 import java.io.*;
 
-public class StateActionLookupTableD4 implements LUTInterface {
+public class QLearningLookupTable implements LUTInterface {
     private final int numDim1Levels;
     private final int numDim2Levels;
     private final int numDim3Levels;
@@ -14,7 +14,7 @@ public class StateActionLookupTableD4 implements LUTInterface {
     private final double[][][][] lookupTable;
     private final int[][][][] visits;
 
-    public StateActionLookupTableD4(
+    public QLearningLookupTable(
             int numDim1Levels,
             int numDim2Levels,
             int numDim3Levels,
@@ -37,18 +37,12 @@ public class StateActionLookupTableD4 implements LUTInterface {
             for (int b = 0; b <numDim2Levels; b++) {
                 for (int c = 0; c < numDim3Levels; c++) {
                     for (int d = 0; d <numDim4Levels; d++) {
-                        //lookupTable[a][b][c][d] = Math.random();
                         lookupTable[a][b][c][d] = (Math.random() - 0.5) * 50;
                         visits[a][b][c][d] = 0;
                     }
                 }
             }
         }
-    }
-
-    @Override
-    public int indexFor(double[] x) {
-        return 0;
     }
 
     @Override
@@ -79,13 +73,13 @@ public class StateActionLookupTableD4 implements LUTInterface {
     }
 
     @Override
-    public double outputFor(double[] x) throws ArrayIndexOutOfBoundsException{
-        if (x.length != 4)
+    public double outputFor(double[] stateActionSpaceVector) throws ArrayIndexOutOfBoundsException{
+        if (stateActionSpaceVector.length != 4)
             throw new ArrayIndexOutOfBoundsException();
-        int a = (int) x[0];
-        int b = (int) x[1];
-        int c = (int) x[2];
-        int d = (int) x[3];
+        int a = (int) stateActionSpaceVector[0];
+        int b = (int) stateActionSpaceVector[1];
+        int c = (int) stateActionSpaceVector[2];
+        int d = (int) stateActionSpaceVector[3];
 
         return lookupTable[a][b][c][d];
     }

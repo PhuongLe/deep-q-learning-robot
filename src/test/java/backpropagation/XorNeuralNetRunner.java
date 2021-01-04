@@ -18,7 +18,7 @@
         private int train(String outputFileName, boolean showErrorAtEachEpoch, boolean showHiddenWeightsAtEachEpoch, boolean showErrorAtConverge) throws IOException {
             double target = 0.05;
 
-            XorNeuralNet nn = new XorNeuralNet(
+            BackpropagationBaseNetwork nn = new BackpropagationBaseNetwork(
                     2,
                     4,
                     1,

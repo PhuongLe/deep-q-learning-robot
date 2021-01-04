@@ -1,14 +1,11 @@
-package ece.robocode;
+package reinforcement;
 
-import ece.backpropagation.StateActionNeuralNet;
-import ece.common.*;
+import backpropagation.StateActionSingleOutputNetwork;
+import common.*;
 import javafx.util.Pair;
 import robocode.BattleEndedEvent;
 
-import java.io.File;
 import java.io.IOException;
-import java.util.ArrayList;
-import java.util.List;
 import java.util.Random;
 
 /**
@@ -16,9 +13,9 @@ import java.util.Random;
  *      3 states: myEnergy, myDistanceToEnemy, my heat gun
  *      4 actions: attack, avoid, runaway, fire
  */
-public class NeuralNetworkRobot extends QLearningRobot {
-    static private final NeuralNetInterface targetNetwork = new StateActionNeuralNet(false);
-    static private final NeuralNetInterface policyNetwork = new StateActionNeuralNet(false);
+public class QNetworkRobo extends QLearningRobo {
+    static private final NeuralNetInterface targetNetwork = new StateActionSingleOutputNetwork(false);
+    static private final NeuralNetInterface policyNetwork = new StateActionSingleOutputNetwork(false);
     static public Experience[] experiences = new Experience[]{};
     static private final int NUM_TIMES_TO_SYNC_VALUE_FUNCTIONS = 100;
     static private final int REPLAY_MEMORY_SIZE = 100; // set it as 1 to experiment one back propagation
@@ -26,7 +23,7 @@ public class NeuralNetworkRobot extends QLearningRobot {
     static private final int NUM_OBSERVATION = 0; //NUM_OBSERVATION must be greater than REPLAY_MEMORY_SIZE
     static private final int NUM_STOP_ONLINE_TRAINING = 20000;
 
-    static String stateActionNeuralNetWeightsFileName = StateActionNeuralNet.baseFolder + "nn_weights.dat";
+    static String stateActionNeuralNetWeightsFileName = AppConfiguration.PretrainedNetworkFileName;
 
     static State plottedState1 = new State(State.enumEnergy.high, State.enumDistance.far, State.enumGunHeat.high);
     static State plottedState2 = new State(State.enumEnergy.high, State.enumDistance.near, State.enumGunHeat.high){};
@@ -44,15 +41,15 @@ public class NeuralNetworkRobot extends QLearningRobot {
     static double new_plotted_totalErrors;
 
     static LogFile logQChangesFile1 = null;
-    static String logQChangesFileName1 = baseFolder + "-robocode-q-change1.log";
+    static String logQChangesFileName1 = AppConfiguration.FilePrefix + "-robocode-q-change1.log";
     static LogFile logQChangesFile2 = null;
-    static String logQChangesFileName2 = baseFolder + "-robocode-q-change2.log";
+    static String logQChangesFileName2 = AppConfiguration.FilePrefix + "-robocode-q-change2.log";
     static LogFile logQChangesFile3 = null;
-    static String logQChangesFileName3 = baseFolder + "-robocode-q-change3.log";
+    static String logQChangesFileName3 = AppConfiguration.FilePrefix + "-robocode-q-change3.log";
     static LogFile logLossFile = null;
-    static String logLossFileName = baseFolder + "-robocode-loss.log";
+    static String logLossFileName = AppConfiguration.FilePrefix + "-robocode-loss.log";
     static LogFile debugLogFile = null;
-    static String debugLogFileName = baseFolder + "-debug.log";
+    static String debugLogFileName = AppConfiguration.FilePrefix + "-debug.log";
 
 
     static StringBuilder debugLog = new StringBuilder();
@@ -198,16 +195,21 @@ public class NeuralNetworkRobot extends QLearningRobot {
         }
     }
 
+    private double[] convertToStateActionVector(State state, Action.enumActions action){
+        return StateActionSingleOutputNetwork.MapStateActionToInputVector(state.energy, state.distance, state.gunHeat, action);
+    }
+
     private void updateWeights(int i, int[] randomBatchIndexes){
         int experienceIndex = randomBatchIndexes[i];
-        double[] previousStateAction = experiences[experienceIndex].previousState.StateActionInputVector(experiences[experienceIndex].previousAction.ordinal());
+        double[] previousStateAction = convertToStateActionVector(experiences[experienceIndex].previousState,
+                                                                  experiences[experienceIndex].previousAction);
 
         double priorQ = policyNetwork.outputFor(previousStateAction);
 
         double maxQ = this.getBestAction(experiences[experienceIndex].currentState).getValue();
 
         double loss = ALPHA*(experiences[experienceIndex].currentReward/137 + GAMMA*maxQ - priorQ);
-        policyNetwork.backwardPropagation(previousStateAction, loss);
+        policyNetwork.train(previousStateAction, loss);
         //updatePlottedQChanges(priorQ);
         updateErrorChanges(Math.abs(loss)/2);
 
@@ -299,7 +301,7 @@ public class NeuralNetworkRobot extends QLearningRobot {
         //double loss = -Double.MAX_VALUE;
         for(int i = 0; i< Action.NUM_ACTIONS; i++)
         {
-            double[] currentStateAction = state.StateActionInputVector(i);
+            double[] currentStateAction = convertToStateActionVector(state, Action.enumActions.values()[i]);
             double computedQValue =  targetNetwork.outputFor(currentStateAction);
 //            writeDebug("stateAction = " + state.StateActionValueString(i)
 //                    + ". StateActionBipolar = " + state.StateActionInputVectorString(i)
@@ -311,9 +313,13 @@ public class NeuralNetworkRobot extends QLearningRobot {
                 action = i;
             }
         }
-        writeDebug("stateAction = " + state.StateActionValueString(action)
-                + ". StateActionBipolar = " + state.StateActionInputVectorString(action)
-                + ". bestQ = " + bestQ);
+
+        if (enableDebug) {
+            writeDebug("stateAction = " + state.StateActionValueString(action)
+                    + ". StateActionBipolar = " + state.StateActionInputVectorString(convertToStateActionVector(state, Action.enumActions.values()[action]))
+                    + ". bestQ = " + bestQ);
+        }
+
         return new Pair<> (Action.enumActions.values()[action], bestQ);
     }
 

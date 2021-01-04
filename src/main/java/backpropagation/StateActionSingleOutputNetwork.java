@@ -1,18 +1,18 @@
-package ece.backpropagation;
+package backpropagation;
 
-import ece.common.*;
-import ece.robocode.StateActionLookupTableD4;
+import common.*;
+import reinforcement.QLearningLookupTable;
 
 import java.io.*;
 
 //This NeuralNet class is design for a NN of 2+ inputs, 1 hidden layer with 4++ neurons and 1 output
 //The number of training set is 4 for each epoch
-public class StateActionNeuralNet extends XorNeuralNet {
-    public static String baseFolder = "d:\\Google Drive\\LXP\\UBC\\Term 3\\CPEN 502 - ML\\Assignments\\Robocode\\data\\";
-    static String lutTableFileName = baseFolder+ "lut.log";
+public class StateActionSingleOutputNetwork extends BackpropagationBaseNetwork {
+
 
     public static int NUM_TRAINING_SET = State.NUM_ENERGY * State.NUM_DISTANCE * State.NUM_GUN_HEAT * Action.NUM_ACTIONS;
     public static int NUM_INPUTS = State.NUM_DISTANCE + State.NUM_ENERGY + State.NUM_GUN_HEAT + Action.NUM_ACTIONS;
+    public static int NUM_OUTPUTS = 1;
     public static int NUM_HIDDEN = 12;
     public static double LEARNING_RATE = 0.01;
     public static double MOMENTUM = 0.9;
@@ -21,26 +21,26 @@ public class StateActionNeuralNet extends XorNeuralNet {
     public static double ARG_B = 1;
     public static boolean USE_BIPOLAR = true;
 
-    static private final LUTInterface q = new StateActionLookupTableD4(
+    static private final LUTInterface q = new QLearningLookupTable(
             State.NUM_ENERGY,
             State.NUM_DISTANCE,
             State.NUM_GUN_HEAT,
             Action.NUM_ACTIONS);
 
-    public StateActionNeuralNet(boolean initializeTrainingSet){
-        super(NUM_INPUTS, NUM_HIDDEN, LEARNING_RATE, MOMENTUM, ARG_A, ARG_B, USE_BIPOLAR, initializeTrainingSet);
+    public StateActionSingleOutputNetwork(boolean initializeTrainingSet){
+        super(NUM_INPUTS, NUM_HIDDEN, NUM_OUTPUTS, LEARNING_RATE, MOMENTUM, ARG_A, ARG_B, USE_BIPOLAR, initializeTrainingSet);
     }
 
     @Override
     public void initializeTrainingSet() {
         try{
-            q.load(lutTableFileName);
+            q.load(AppConfiguration.ReferencedLutTableFileName);
         } catch (IOException e) {
             System.out.println("*** Could not load state action lookup table from file");
             return;
         }
         inputValues = new double[NUM_TRAINING_SET][NUM_INPUTS];
-        actualOutput = new double[NUM_TRAINING_SET];
+        actualOutputs = new double[NUM_TRAINING_SET][NUM_OUTPUTS];
 
         double qValue;
         int trainingSetIndex = 0;
@@ -63,7 +63,7 @@ public class StateActionNeuralNet extends XorNeuralNet {
                         Action.enumActions action = Action.enumActions.values()[d];
                         addActionBipolarFormatToDataSet(action, trainingSetIndex);
 
-                        actualOutput[trainingSetIndex] = qValue/scaleSize;
+                        actualOutputs[trainingSetIndex][0] = qValue/scaleSize;
                         trainingSetIndex++;
                     }
                 }

@@ -9,7 +9,7 @@ public class XorNeuralNetTester {
      */
     @Test
     public void testOneBackwardPropagationWithBinarySigmoidWithWeightsWithTrainingSet000() {
-        XorNeuralNet testNN = createBinaryNeuralNet();
+        BackpropagationBaseNetwork testNN = createBinaryNeuralNet();
 
         double[][] argInputHiddenWeights = {
                 {0.23, 0.34, 0.14, 0.35},
@@ -24,7 +24,7 @@ public class XorNeuralNetTester {
         double[] inputVectors = {0.0, 0.0};
         double[] target = {0.0};
 
-        testNN.train(inputVectors, target);
+        testNN.performBackPropagationTraining(inputVectors, target);
 
         double [][] actualLastWeightChangeToOutput = testNN.getLastWeightChangeToOutput();
         double [][] actualLastWeightChangeToHidden = testNN.getLastWeightChangeToHidden();
@@ -48,7 +48,7 @@ public class XorNeuralNetTester {
      */
     @Test
     public void testOneBackwardPropagationWithBinarySigmoidWithWeightsWithTrainingSet101(){
-        XorNeuralNet testNN = createBinaryNeuralNet();
+        BackpropagationBaseNetwork testNN = createBinaryNeuralNet();
 
         double[][] argInputHiddenWeights = {
                 {0.23, 0.34, 0.14, 0.35},
@@ -63,7 +63,7 @@ public class XorNeuralNetTester {
         double[] inputVectors = {1.0, 0.0};
         double[] target = {1.0};
 
-        testNN.train(inputVectors, target);
+        testNN.performBackPropagationTraining(inputVectors, target);
 
         double [][] actualLastWeightToOutput = testNN.getOutputWeights();
         double [][] actualLastWeightToHidden = testNN.getHiddenWeight();
@@ -87,7 +87,7 @@ public class XorNeuralNetTester {
      */
     @Test
     public void testOneForwardPropagationWithBinarySigmoidWithZeroWeightsWithTrainingSet000(){
-        XorNeuralNet testNN = createBinaryNeuralNet();
+        BackpropagationBaseNetwork testNN = createBinaryNeuralNet();
 
         // Start with a zero set of weights
         testNN.initializeWithZeroWeights();
@@ -96,7 +96,7 @@ public class XorNeuralNetTester {
         double[] inputVectors = {0.0, 0.0};
         double[] target = {0.0};
 
-        double computedError = testNN.train(inputVectors, target);
+        double computedError = testNN.performBackPropagationTraining(inputVectors, target);
 
         //double expectedError = -0.731058579;
         double expectedError = 0.125;
@@ -110,7 +110,7 @@ public class XorNeuralNetTester {
      */
     @Test
     public void testOneForwardPropagationWithBinarySigmoidWithWeightsWithTrainingSet101(){
-        XorNeuralNet testNN = createBinaryNeuralNet();
+        BackpropagationBaseNetwork testNN = createBinaryNeuralNet();
 
         double[][] argInputHiddenWeights = {
                 {0.23, 0.34, 0.14, 0.35},
@@ -125,7 +125,7 @@ public class XorNeuralNetTester {
         double[] inputVectors = {1.0, 0.0};
         double[] target = {1.0};
 
-        double computedError = testNN.train(inputVectors, target);
+        double computedError = testNN.performBackPropagationTraining(inputVectors, target);
 
         //double expectedError = 0.20998864;
         double expectedError = 0.022047614;
@@ -139,7 +139,7 @@ public class XorNeuralNetTester {
      */
     @Test
     public void testOneForwardPropagationWithBinarySigmoidWithWeightsWithTrainingSet000(){
-        XorNeuralNet testNN = createBinaryNeuralNet();
+        BackpropagationBaseNetwork testNN = createBinaryNeuralNet();
 
         double[][] argInputHiddenWeights = {
                 {0.23, 0.34, 0.14, 0.35},
@@ -154,7 +154,7 @@ public class XorNeuralNetTester {
         double[] inputVectors = {0.0, 0.0};
         double[] target = {0.0};
 
-        double computedError = testNN.train(inputVectors, target);
+        double computedError = testNN.performBackPropagationTraining(inputVectors, target);
 
         double expectedError = 0.300887955;
 
@@ -167,7 +167,7 @@ public class XorNeuralNetTester {
      */
     @Test
     public void testOneForwardPropagationWithBipolarSigmoidWithWeightsWithTrainingSetM1M1M1(){
-        XorNeuralNet testNN = createBipolarNeuralNet();
+        BackpropagationBaseNetwork testNN = createBipolarNeuralNet();
 
         double[][] argInputHiddenWeights = {
                 {0.23, 0.34, 0.14, 0.35},
@@ -181,7 +181,7 @@ public class XorNeuralNetTester {
         double[] inputVectors = {-1.0, -1.0};
         double[] target = {-1.0};
 
-        double computedError = testNN.train(inputVectors, target);
+        double computedError = testNN.performBackPropagationTraining(inputVectors, target);
 
         //double expectedError = -1.190506994;
         double expectedError = 0.708653451;
@@ -195,7 +195,7 @@ public class XorNeuralNetTester {
      */
     @Test
     public void testOneBackwardPropagationWithBipolarSigmoidWithWeightsWithTrainingSetM1M1M1() {
-        XorNeuralNet testNN = createBipolarNeuralNet();
+        BackpropagationBaseNetwork testNN = createBipolarNeuralNet();
 
         double[][] argInputHiddenWeights = {
                 {0.23, 0.34, 0.14, 0.35},
@@ -210,7 +210,7 @@ public class XorNeuralNetTester {
         double[] inputVectors = {-1.0, -1.0};
         double[] target = {-1.0};
 
-        testNN.train(inputVectors, target);
+        testNN.performBackPropagationTraining(inputVectors, target);
 
         double [][] actualLastWeightToOutput = testNN.getOutputWeights();
         double [][] actualLastWeightToHidden = testNN.getHiddenWeight();
@@ -234,7 +234,7 @@ public class XorNeuralNetTester {
      */
     @Test
     public void testOneForwardPropagationWithBipolarSigmoidWithWeightsWithTrainingSetM111(){
-        XorNeuralNet testNN = createBipolarNeuralNet();
+        BackpropagationBaseNetwork testNN = createBipolarNeuralNet();
 
         double[][] argInputHiddenWeights = {
                 {0.23, 0.34, 0.14, 0.35},
@@ -249,7 +249,7 @@ public class XorNeuralNetTester {
         double[] inputVectors = {-1.0, 1.0};
         double[] target = {1.0};
 
-        double computedError = testNN.train(inputVectors, target);
+        double computedError = testNN.performBackPropagationTraining(inputVectors, target);
 
         //double expectedError = 0.627397447;
         double expectedError = 0.196813778;
@@ -263,7 +263,7 @@ public class XorNeuralNetTester {
      */
     @Test
     public void testOneBackwardPropagationWithBipolarSigmoidWithWeightsWithTrainingSetM111() {
-        XorNeuralNet testNN = createBipolarNeuralNet();
+        BackpropagationBaseNetwork testNN = createBipolarNeuralNet();
 
         double[][] argInputHiddenWeights = {
                 {0.23, 0.34, 0.14, 0.35},
@@ -278,7 +278,7 @@ public class XorNeuralNetTester {
         double[] inputVectors = {-1.0, 1.0};
         double[] target = {1.0};
 
-        testNN.train(inputVectors, target);
+        testNN.performBackPropagationTraining(inputVectors, target);
 
         double [][] actualLastWeightToOutput = testNN.getOutputWeights();
         double [][] actualLastWeightToHidden = testNN.getHiddenWeight();
@@ -302,7 +302,7 @@ public class XorNeuralNetTester {
      */
     @Test
     public void testOneBackwardPropagationWithBinarySigmoidWithWeightsWithTrainingSet101WithMomentum09() {
-        XorNeuralNet testNN = createBinaryNeuralNet();
+        BackpropagationBaseNetwork testNN = createBinaryNeuralNet();
         testNN.momentumTerm = 0.9;
 
         double[][] argDeltaHiddenWeight = {
@@ -327,7 +327,7 @@ public class XorNeuralNetTester {
 
         testNN.initializeWeights(argInputHiddenWeights, argOutputHiddenWeights, argDeltaHiddenWeight, argDeltaOutputWeight);
 
-        testNN.train(inputVectors, target);
+        testNN.performBackPropagationTraining(inputVectors, target);
 
         double [][] actualLastWeightToOutput = testNN.getOutputWeights();
         double [][] actualLastWeightToHidden = testNN.getHiddenWeight();
@@ -351,7 +351,7 @@ public class XorNeuralNetTester {
      */
     @Test
     public void testOneBackwardPropagationWithBinarySigmoidWithWeightsWithTrainingSet000WithMomentum09() {
-        XorNeuralNet testNN = createBinaryNeuralNet();
+        BackpropagationBaseNetwork testNN = createBinaryNeuralNet();
         testNN.momentumTerm = 0.9;
 
         double[][] argDeltaHiddenWeight = {
@@ -375,7 +375,7 @@ public class XorNeuralNetTester {
 
         testNN.initializeWeights(argInputHiddenWeights, argOutputHiddenWeights, argDeltaHiddenWeight, argDeltaOutputWeight);
 
-        testNN.train(inputVectors, target);
+        testNN.performBackPropagationTraining(inputVectors, target);
 
         double [][] actualLastWeightToOutput = testNN.getOutputWeights();
         double [][] actualLastWeightToHidden = testNN.getHiddenWeight();
@@ -399,7 +399,7 @@ public class XorNeuralNetTester {
      */
     @Test
     public void testOneBackwardPropagationWithBipolarSigmoidWithWeightsWithTrainingSet101WithMomentum09() {
-        XorNeuralNet testNN = createBipolarNeuralNet();
+        BackpropagationBaseNetwork testNN = createBipolarNeuralNet();
         testNN.momentumTerm = 0.9;
 
         double[][] argDeltaHiddenWeight = {
@@ -424,7 +424,7 @@ public class XorNeuralNetTester {
 
         testNN.initializeWeights(argInputHiddenWeights, argOutputHiddenWeights, argDeltaHiddenWeight, argDeltaOutputWeight);
 
-        testNN.train(inputVectors, target);
+        testNN.performBackPropagationTraining(inputVectors, target);
 
         double [][] actualLastWeightToOutput = testNN.getOutputWeights();
         double [][] actualLastWeightToHidden = testNN.getHiddenWeight();
@@ -445,7 +445,7 @@ public class XorNeuralNetTester {
 
     @Test
     public void testActivationFunction() {
-        XorNeuralNet testNN = createBinaryNeuralNet();
+        BackpropagationBaseNetwork testNN = createBinaryNeuralNet();
 
         double computedActivation = testNN.computeActivation(0.023);
         double expectedValue = 0.505749747;
@@ -460,7 +460,7 @@ public class XorNeuralNetTester {
      */
     @Test
     public void testRandomScheme() {
-        XorNeuralNet testNN = createBipolarNeuralNet();
+        BackpropagationBaseNetwork testNN = createBipolarNeuralNet();
         testNN.learningRate = 0.02;
         testNN.momentumTerm = 0.0;
 
@@ -486,7 +486,7 @@ public class XorNeuralNetTester {
 
         testNN.initializeWeights(argInputHiddenWeights, argOutputHiddenWeights, argDeltaHiddenWeight, argDeltaOutputWeight);
 
-        testNN.train(inputVectors, target);
+        testNN.performBackPropagationTraining(inputVectors, target);
 
         double [][] actualLastWeightToOutput = testNN.getOutputWeights();
         double [][] actualLastWeightToHidden = testNN.getHiddenWeight();
@@ -505,8 +505,8 @@ public class XorNeuralNetTester {
         }
     }
 
-    private XorNeuralNet createBipolarNeuralNet() {
-        return new XorNeuralNet(
+    private BackpropagationBaseNetwork createBipolarNeuralNet() {
+        return new BackpropagationBaseNetwork(
                 2,
                 4,
                 1,
@@ -518,8 +518,8 @@ public class XorNeuralNetTester {
                 false);
     }
 
-    private XorNeuralNet createBinaryNeuralNet() {
-        return new XorNeuralNet(
+    private BackpropagationBaseNetwork createBinaryNeuralNet() {
+        return new BackpropagationBaseNetwork(
                 2,
                 4,
                 1,
