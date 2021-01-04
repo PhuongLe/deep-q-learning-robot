@@ -20,6 +20,7 @@ It has been fully unit tested using XOR and BIPOLAR XOR presentation. The XorNeu
 
 The implementation is on "src\main\java\backpropagation", and more details is written on my article about ["backpropagation algorithm"](https://phuongle.github.io/2021/01/backpropagation-neural-net.html).
 
+
 **Part 2: Reinforcement Learning to build a robot tank**
 
 *Testing*
@@ -41,13 +42,19 @@ The winning rate can reach above 90% after around 3000 rounds.
 *Implementation and Design*
 
 The implementation can be found at "src\main\java\reinforcement". The overall design is on the next section.
+
 ##Implementation Objectives
+
 This project has following learning objectives. Most of them were implemented, and tested.
+
 **Neural Network** 
+
 + [How to train a neural network by using Backpropagation algorithm?](https://phuongle.github.io/2021/01/backpropagation-neural-net.html)
 - How to measure a neural network's performance?
 - Bias and Weights
+
 **Reinforcement Learning**
+
 - How to implement Reinforcement Learning with Q-Learning algorithm to build a Robot tank in Robocode platform?
 - How to implement on-policy vs off-policy algorithm (aka Q-Learning vs SARSA)?, and why off-policy is more preferable than on-policy algorithm?
 - How to measure a Reinforcement Learning performance?
@@ -65,6 +72,7 @@ This project is to inspect a popular Q-function approximation method which is De
 <p align="center">
    <img src="./readme/system-design.png" width="650" alt=""/>
 </p>
+
 ### Reinforcement Formulation
 As Reinforcement Learning is an algorithm to specify the appropriate Action of a specific States by learning from a Reward system,
 it is important to identify following artifacts
