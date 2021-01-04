@@ -1,4 +1,6 @@
 # An Experiment of Deep Q-Learning with Robocode
+
+## Introduction
 This project aims to perform different experiments to have a better practical understanding about the Reinforcement Learning (RL) using Q-Learning and using Function Approximation with Backpropagation Neural Network.
 The implementation has two primary parts: a backpropagation neural network, and a reinforcement learning to build a tank on Robocode platform.
 
@@ -43,7 +45,7 @@ The winning rate can reach above 90% after around 3000 rounds.
 
 The implementation can be found at "src\main\java\reinforcement". The overall design is on the next section.
 
-##Implementation Objectives
+## Implementation Objectives
 
 This project has following learning objectives. Most of them were implemented, and tested.
 
@@ -64,10 +66,10 @@ This project has following learning objectives. Most of them were implemented, a
 
 
 
-##Implement Q-Function Approximation using Backpropagation Neural Network
+## Implement Q-Function Approximation using Backpropagation Neural Network
 
 
-###Approach
+### Approach
 This project is to inspect a popular Q-function approximation method which is Deep Q-Network using Neural Networks to estimate Q-values. The approach is shown on the image below
 <p align="center">
    <img src="./readme/system-design.png" width="650" alt=""/>
@@ -111,15 +113,18 @@ Using this architecture, the neural network used to implement Q-Function approxi
 </p>
 
 **Input normalization**
+
 As all the state-action space values are continuous variables, the easiest way is to use “Thermometer” codes to present it. Using the same state-action space size, the mapping will look like image blow
 <p align="center">
    <img src="./readme/normalization.png" width="650" alt=""/>
 </p>
 
 **Output normalization**
+
 The Q-value will also be normalized in range [-1,1] to feed into target output of the neural network. This can be done by scale the min/max Q-values to fall between [-1, 1]. Additionally, since there are few state-action spaces that are not visited, these Q-values will be over normal range which should be considered as null data. Those values will be eliminated out of the training data set.
 
 **Neural network training with backpropagation algorithm**
+
 After having a set of inputs vectors and expected outputs, the neural network has been trained using backpropagation algorithm, and the best result is saved to be used for online-training step
 - Number of Inputs: 12 (3 for Energy, 3 of Distance, 2 for GunHeat, and 4 for Action).
 - Number of Hidden Neurons: 12 
@@ -130,7 +135,7 @@ After having a set of inputs vectors and expected outputs, the neural network ha
    <img src="./readme/offline-training.png" width="650" alt=""/>
 </p>
 
-###Online training
+### Online training
 Using the pre-trained neural network, the robot has continued online training with Experiment Replay technique. The result of the neural network is shown as image below
 <p align="center">
    <img src="./readme/q-function-performance.png" width="650" alt=""/>
