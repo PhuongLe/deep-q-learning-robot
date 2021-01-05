@@ -2,48 +2,41 @@
 
 ## Introduction
 This project aims to perform different experiments to have a better practical understanding about the Reinforcement Learning (RL) using Q-Learning and using Function Approximation with Backpropagation Neural Network.
-The implementation has two primary parts: a backpropagation neural network, and a reinforcement learning to build a tank on Robocode platform.
+The implementation has two primary parts: backpropagation neural network, and reinforcement learning to build a tank on Robocode platform.
 
 ### Part 1: backpropagation neural network
 
 The neural network has been trained by backpropagation algorithm with different activation function options. 
-The implemented neural network has multiple inputs, one hidden layers with multiple neurons, and multiple outputs as shown on image blow.
-Both hidden and output layer have bias with variant weights on each bias.
+The network has multiple inputs, one hidden layers with multiple neurons, and multiple outputs as shown on image blow.
+More details can be found on my post ["backpropagation algorithm"](https://phuongle.github.io/2021/01/backpropagation-neural-net.html).
 
 <p align="center">
 <img src="./readme/nn-multi.png" width="650" alt=""/>
 </p>
 
-*Testing*
-
-It has been fully unit tested using XOR and BIPOLAR XOR presentation. The XorNeuralNetRunner is written for experimenting different hyper-parameters manually.
-
-*Implementation*
-
-The implementation is on "src\main\java\backpropagation", and more details is written on my article about ["backpropagation algorithm"](https://phuongle.github.io/2021/01/backpropagation-neural-net.html).
-
+It has been fully unit tested with XOR and BIPOLAR XOR presentation. It can also be manually tested with XorNeuralNetRunner.
 
 ### Part 2: Reinforcement Learning to build a robot tank
 
-*Testing*
+This part is to study how to use Reinforcement Learning algorithm to train a robot tank to fight against the enemy Tracker 
+on [Robocode platform](https://robocode.sourceforge.io/), in which this implementation has two robots
+- Robot "QLearningRobo": is trained by RL using Q-Learning algorithm (an extension of Temporal-Difference learning TD(0)).
+- Robot "QNetworkRobo": is trained by deep RL using Q-Function approximation with Neural Network.
 
-This robot tank has been tested against enemy Tracker, 
+The overall design can be found on my post ["How to implement a Deep Reinforcement Learning to build a Robot tank"](https://phuongle.github.io/2021/01/reinforcement-learning-to-build-a-robot-tank.html)
 
-The performance of using Q-Learning is as on the image below.
+
+The performance of QLearningRobo is as on the image below.
 <p align="center">
-   <img src="./readme/Q-Learning-performance.png" width="650" alt=""/>
+   <img src="./readme/Q-Learning-performance.png" width="500" alt=""/>
 </p>
 The winning rate shows the different performance between on-policy and off-policy algorithm.
 
-The performance of using Q-Function Approximation is as on the image below.
+The performance of QNetworkRobo is as on the image below.
 <p align="center">
-   <img src="./readme/Q-Function-Approximation-performance.png" width="650" alt=""/>
+   <img src="./readme/Q-Function-Approximation-performance.png" width="500" alt=""/>
 </p>
 The winning rate can reach above 90% after around 3000 rounds.
-
-*Implementation*
-
-The implementation can be found at "src\main\java\reinforcement". The overall design is on the next section.
 
 ## Implementation Objectives
 
@@ -57,9 +50,15 @@ This project has following learning objectives. Most of them were implemented, a
 
 ### Reinforcement Learning
 
-- How to implement Reinforcement Learning with Q-Learning algorithm to build a Robot tank in Robocode platform?
+- [How to implement Deep Reinforcement Learning to build a Robot tank?](https://phuongle.github.io/2021/01/reinforcement-learning-to-build-a-robot-tank.html)
 - How to implement on-policy vs off-policy algorithm (aka Q-Learning vs SARSA)?, and why off-policy is more preferable than on-policy algorithm?
 - How to measure a Reinforcement Learning performance?
 - How to implement Q-Function Approximation using Backpropagation Neural Network?
 - How to implement State-Action space less reduction in Q-Function Approximation?
 - How to implement Memory Replay in Deep Q-Network training?
+
+## Setup
+Please refer to my article [How to implement Deep Reinforcement Learning to build a Robot tank?](https://phuongle.github.io/2021/01/reinforcement-learning-to-build-a-robot-tank.html) for more details.
+
+
+
