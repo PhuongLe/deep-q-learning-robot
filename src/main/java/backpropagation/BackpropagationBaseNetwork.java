@@ -177,7 +177,7 @@ public class BackpropagationBaseNetwork implements NeuralNetInterface {
         //Update weights between hidden layer and output layer
         for (int j = 0; j < numHiddenNeurons; j++) {
             deltaOutputWeight[outputIndex][j] = momentumTerm * deltaOutputWeight[outputIndex][j]
-                    + learningRate * deltaOutputS[0] * hiddenY[j];
+                    + learningRate * deltaOutputS[outputIndex] * hiddenY[j];
             outputWeight[outputIndex][j] += deltaOutputWeight[outputIndex][j];
         }
         //for bias weights
@@ -221,53 +221,6 @@ public class BackpropagationBaseNetwork implements NeuralNetInterface {
         }
         return totalRMSErrors/numOutputs;
     }
-
-//    /**
-//     * This method implements a backward propagation for a single inputs/output.
-//     * @param errors The output error calculated by forward propagation
-//     */
-//    @Override
-//    public void performErrorsBackpropagation(double[] inputVector, double[] errors) {
-//        //Compute the delta values of output layer
-//        for(int i = 0; i < numOutputs; i++) {
-//            deltaOutputS[i] = computeDerivativeOfActivation(errors[i], outputY[i]);
-//        }
-//
-//        //Update weights between hidden layer and output layer
-//        for(int i = 0; i < numOutputs; i++) {
-//            for (int j = 0; j < numHiddenNeurons; j++) {
-//                deltaOutputWeight[i][j] = momentumTerm * deltaOutputWeight[i][j]
-//                        + learningRate * deltaOutputS[i] * hiddenY[j];
-//                outputWeight[i][j] += deltaOutputWeight[i][j];
-//            }
-//            //for bias weights
-//            deltaOutputWeight[i][numHiddenNeurons] = momentumTerm * deltaOutputWeight[i][numHiddenNeurons]
-//                    + learningRate * deltaOutputS[i] * 1;
-//            outputWeight[i][numHiddenNeurons] += deltaOutputWeight[i][numHiddenNeurons];
-//        }
-//
-//        //Compute the delta values of hidden layer
-//        for (int j = 0; j < numHiddenNeurons; j++) {
-//            double errorAtj = 0;
-//            for(int i = 0; i < numOutputs; i++) {
-//                errorAtj += deltaOutputS[i] * outputWeight[i][j];
-//            }
-//            deltaHiddenS[j] = computeDerivativeOfActivation(errorAtj, hiddenY[j]);
-//        }
-//
-//        //Update weights between input layer and hidden layer
-//        for (int j = 0; j < numHiddenNeurons; j++) {
-//            for (int i = 0; i < numInputs; i++) {
-//                deltaHiddenWeight[i][j] = momentumTerm * deltaHiddenWeight[i][j]
-//                        + learningRate * deltaHiddenS[j] * inputVector[i];
-//                hiddenWeight[i][j] += deltaHiddenWeight[i][j];
-//            }
-//            //for bias' weights
-//            deltaHiddenWeight[numInputs][j] = momentumTerm * deltaHiddenWeight[numInputs][j]
-//                    + learningRate * deltaHiddenS[j] * 1;
-//            hiddenWeight[numInputs][j] += deltaHiddenWeight[numInputs][j];
-//        }
-//    }
 
     private double computeDerivativeOfActivation(double error, double y) {
         return error*activationFunction.ComputeDerivative(y);
@@ -549,7 +502,6 @@ public class BackpropagationBaseNetwork implements NeuralNetInterface {
             error = 0.0;
             for (int i = 0; i < numTrainingSet; i++) {
                 double computedError = this.performBackPropagationTraining(this.inputValues[i], this.actualOutputs[i]);
-                error += 0.5*Math.pow(computedError,2);
                 error += computedError;
             }
             errors.add(error);

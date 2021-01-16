@@ -350,6 +350,55 @@ public class XorNeuralNetTester {
      * This is a very basic test, which looks at the very first weight updates from initial weights
      */
     @Test
+    public void testOneBackwardPropagationWithBinarySigmoidWithWeightsWithTrainingSet110WithMomentum09() {
+        BackpropagationBaseNetwork testNN = createBinaryNeuralNet();
+        testNN.momentumTerm = 0.9;
+
+        double[][] argDeltaHiddenWeight = {
+                {0.001, 0.034, 0.0021, 0.0012},
+                {0.0032, 0.0025, 0.0037, 0.00112},
+                {0.0,0.0,0.0,0.0}
+        };
+        double[][] argDeltaOutputWeight = {{0.00345, 0.00267, 0.0021,0.0045, 0.0001}};
+
+        double[][] argInputHiddenWeights = {
+                {0.23, 0.34, 0.14, 0.35},
+                {0.52, 0.27, 0.19, 0.25},
+                {0.56, 0.56, 0.56, 0.56}
+        };
+
+        double[][] argOutputHiddenWeights = {{0.31, 0.56, 0.13, 0.29, 0.42}};
+
+        //Now apply a single training set
+        double[] inputVectors = {1.0, 1.0};
+        double[] target = {0.0};
+
+        testNN.initializeWeights(argInputHiddenWeights, argOutputHiddenWeights, argDeltaHiddenWeight, argDeltaOutputWeight);
+
+        testNN.performBackPropagationTraining(inputVectors, target);
+
+        double [][] actualLastWeightToOutput = testNN.getOutputWeights();
+        double [][] actualLastWeightToHidden = testNN.getHiddenWeight();
+
+        double [] expectedLastWeightToOutput = {0.293091977, 0.543009243, 0.113875018, 0.274702299, 0.394677062};
+        double [][] expectedLastWeightToHidden = {
+                {0.229653625, 0.368105683, 0.141292801, 0.349811517},
+                {0.521633625, 0.269755683, 0.192732801, 0.249739517},
+                {0.558753625, 0.557505683, 0.559402801, 0.558731517
+                }
+        };
+
+        //Test weights on output neuron
+        Assertions.assertArrayEquals(expectedLastWeightToOutput, actualLastWeightToOutput[0], 0.00001);
+        for (int i=0;  i < expectedLastWeightToHidden.length; i++) {
+            Assertions.assertArrayEquals(expectedLastWeightToHidden[i], actualLastWeightToHidden[i], 0.00001);
+        }
+    }
+
+    /**
+     * This is a very basic test, which looks at the very first weight updates from initial weights
+     */
+    @Test
     public void testOneBackwardPropagationWithBinarySigmoidWithWeightsWithTrainingSet000WithMomentum09() {
         BackpropagationBaseNetwork testNN = createBinaryNeuralNet();
         testNN.momentumTerm = 0.9;
@@ -398,7 +447,7 @@ public class XorNeuralNetTester {
      * This is a very basic test, which looks at the very first weight updates from initial weights
      */
     @Test
-    public void testOneBackwardPropagationWithBipolarSigmoidWithWeightsWithTrainingSet101WithMomentum09() {
+    public void testOneBackwardPropagationWithBipolarSigmoidWithWeightsWithTrainingSetM1M1M1WithMomentum09() {
         BackpropagationBaseNetwork testNN = createBipolarNeuralNet();
         testNN.momentumTerm = 0.9;
 
@@ -407,7 +456,7 @@ public class XorNeuralNetTester {
                 {0.0032, 0.0025, 0.0037, 0.00112},
                 {0.0,0.0,0.0,0.0}
         };
-        double[][] argDeltaOutputWeight = {{0.00345, 0.00267, 0.0021,0.0045, 0.0001}};
+        double[][] argDeltaOutputWeight = {{0.00345, 0.00267, 0.0021, 0.0045, 0.0001}};
 
         double[][] argInputHiddenWeights = {
                 {0.23, 0.34, 0.14, 0.35},
